@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login</title>
+
+  <style>
+    :root{
+      --nav:#0b2431;
+      --accent:#f7b500;
+      --text:#ffffff;
+      --muted:rgba(255,255,255,.82);
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.16);
+      --dark:#0b1115;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+    }
+
+    .navbar-custom{
+      position: fixed;
+      top:0; left:0; right:0;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(11,36,49,.95), rgba(11,36,49,.90));
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      padding: 14px 0;
+    }
+    .nav-inner{
+      width:min(1100px, 92vw);
+      margin:auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 16px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      color: #fff;
+      text-decoration:none;
+      font-weight: 900;
+      letter-spacing: .3px;
+      white-space: nowrap;
+    }
+    .brand-circle{
+      display:inline-flex;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      align-items:center;
+      justify-content:center;
+      border:2px solid var(--accent);
+      color:var(--accent);
+      font-weight:900;
+      margin-right:10px;
+    }
+    .nav-right a{
+      color: rgba(255,255,255,.85);
+      text-decoration:none;
+      font-weight: 700;
+      margin-left: 14px;
+    }
+    .nav-right a:hover{ color: var(--accent); }
+    .nav-right .active{ color: var(--accent); }
+
+    .page-bg{
+      min-height: 100vh;
+      background: url("../images/bj.png") center/cover no-repeat fixed;
+      position: relative;
+      padding-top: 90px;
+      padding-bottom: 70px;
+    }
+    .page-bg::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.45);
+    }
+
+    .wrap{
+      position: relative;
+      min-height: calc(100vh - 90px - 70px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 30px 18px;
+    }
+
+    .panel{
+      width:min(640px, 92vw);
+      background: linear-gradient(180deg, var(--glass2), var(--glass));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 25px 60px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .panel-header{
+      padding: 22px 22px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .panel-title{
+      margin:0;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .panel-sub{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .panel-body{ padding: 18px 22px 22px; }
+
+    label{
+      display:block;
+      margin: 10px 0 8px;
+      font-weight: 900;
+      color: rgba(255,255,255,.92);
+    }
+    .input{
+      width:100%;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color:#fff;
+      outline:none;
+      font-size: 16px;
+    }
+    .input::placeholder{ color: rgba(255,255,255,.55); }
+    .input:focus{
+      border-color: rgba(247,181,0,.95);
+      box-shadow: 0 0 0 4px rgba(247,181,0,.18);
+    }
+
+    .btn{
+      width:100%;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border:none;
+      border-radius: 14px;
+      font-weight: 900;
+      font-size: 16px;
+      cursor:pointer;
+      background: #1e2328;
+      color:#fff;
+      transition: .2s ease;
+    }
+    .btn:hover{ filter:brightness(1.05); transform: translateY(-1px); }
+
+    .msg{
+      margin-top: 12px;
+      font-weight: 900;
+      text-align:center;
+    }
+    .msg.ok{ color:#2ecc71; }
+    .msg.err{ color:#ff6b6b; }
+
+    .footer{
+      background: var(--nav);
+      color: rgba(255,255,255,.85);
+      text-align:center;
+      padding: 14px 12px;
+      font-weight: 650;
+      position: fixed;
+      left:0; right:0; bottom:0;
+      z-index: 10;
+    }
+
+    @media (max-width: 900px){
+      .nav-right{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar-custom">
+    <div class="nav-inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-circle">C</span>
+        CarShowroom
+      </a>
+
+      <div class="nav-right">
+        <a href="../index.html">Home</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../customer/login.html">Customer Sign In</a>
+        <a class="active" href="login.html">Admin Login</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-bg">
+    <div class="wrap">
+      <section class="panel">
+        <div class="panel-header">
+          <h1 class="panel-title">Admin Login</h1>
+          <p class="panel-sub">Enter your admin credentials.</p>
+        </div>
+
+        <div class="panel-body">
+          <form id="adminForm">
+            <label for="adminEmail">Email</label>
+            <input id="adminEmail" class="input" type="email"
+              placeholder="Enter admin email"
+              autocomplete="off" required>
+
+            <label for="adminPass">Password</label>
+            <input id="adminPass" class="input" type="password"
+              placeholder="Enter password"
+              autocomplete="new-password" required>
+
+            <button class="btn" type="submit">Login</button>
+            <div id="adminMsg" class="msg"></div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    © 2025 CarShowroom. All Rights Reserved.
+  </footer>
+
+  <!-- ✅ AdminAuth -->
+  <script src="../assets/js/admin-auth.js"></script>
+  <script>
+    const form = document.getElementById("adminForm");
+    const msg  = document.getElementById("adminMsg");
+
+    function show(text, type){
+      msg.textContent = text;
+      msg.className = "msg " + (type === "ok" ? "ok" : "err");
+    }
+
+    // ✅ If already logged in, go dashboard
+    AdminAuth.redirectIfLoggedIn("./dashboard.html");
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+
+      const email = document.getElementById("adminEmail").value;
+      const pass  = document.getElementById("adminPass").value;
+
+      const ok = AdminAuth.login(email, pass);
+
+      if(ok){
+        show("Login successful! Redirecting...", "ok");
+        setTimeout(() => {
+          // ✅ auto-safe path
+          AdminAuth.redirectIfLoggedIn("./dashboard.html");
+          // if not redirected (rare), force it:
+          window.location.href = window.location.pathname.includes("/admin/")
+            ? "./dashboard.html"
+            : "dashboard.html";
+        }, 300);
+      } else {
+        show("Invalid admin email or password.", "err");
+      }
+    });
+  </script>
+</body>
+</html>

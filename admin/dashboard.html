@@ -1,0 +1,977 @@
+<script src="../assets/js/admin-auth.js"></script>
+<script>
+  AdminAuth.requireAuth("./login.html");
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CarShowroom — Admin Panel</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Icons (Font Awesome) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e8edf6;
+      --blue: #2563eb;
+      --indigo: #4f46e5;
+      --cyan: #06b6d4;
+      --green: #16a34a;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --shadow2: 0 8px 22px rgba(15, 23, 42, 0.06);
+      --radius: 18px;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1100px 500px at 30% -10%, rgba(79,70,229,.18), transparent 60%),
+                  radial-gradient(1000px 450px at 90% 10%, rgba(37,99,235,.14), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    .container{
+      width: min(1200px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    /* Top gradient bar (like customer theme) */
+    .top-strip{
+      height: 4px;
+      background: linear-gradient(90deg, var(--indigo), var(--blue), #7c3aed);
+    }
+
+    /* NAVBAR */
+    .navbar{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(245, 247, 251, 0.85);
+      border-bottom: 1px solid rgba(232, 237, 246, 0.9);
+    }
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 0;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 250px;
+    }
+    .logo{
+      width: 46px; height: 46px;
+      border-radius: 16px;
+      display:grid;
+      place-items:center;
+      background: linear-gradient(135deg, var(--indigo), var(--blue));
+      box-shadow: 0 12px 24px rgba(37,99,235,.22);
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+    .brand-title{
+      line-height: 1.1;
+    }
+    .brand-title .t1{
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .brand-title .t2{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .nav-link{
+      display:flex;
+      align-items:center;
+      gap: 9px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: #1f2937;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid transparent;
+      transition: .18s ease;
+      white-space: nowrap;
+    }
+    .nav-link i{ color: #334155; }
+    .nav-link:hover{
+      background: rgba(79,70,229,.08);
+      border-color: rgba(79,70,229,.18);
+    }
+    .nav-link.active{
+      background: rgba(37,99,235,.10);
+      border-color: rgba(37,99,235,.22);
+      color: var(--blue);
+    }
+    .nav-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 220px;
+      justify-content: flex-end;
+    }
+    .chip{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.8);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow2);
+      font-weight: 700;
+      font-size: 13px;
+      color: #111827;
+    }
+    .chip small{
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      border-radius: 16px;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      font-weight: 800;
+      cursor:pointer;
+      transition: .18s ease;
+      user-select: none;
+      font-size: 14px;
+    }
+    .btn-primary{
+      background: linear-gradient(135deg, var(--blue), var(--indigo));
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(37,99,235,.20);
+    }
+    .btn-primary:hover{ transform: translateY(-1px); }
+    .btn-ghost{
+      background: rgba(255,255,255,.8);
+      border-color: var(--line);
+      color: #0f172a;
+      box-shadow: var(--shadow2);
+    }
+    .btn-ghost:hover{
+      border-color: rgba(37,99,235,.25);
+    }
+
+    /* PAGE */
+    .page{
+      padding: 22px 0 40px;
+    }
+
+    .hero{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 10px;
+      margin-bottom: 18px;
+    }
+    .hero h1{
+      margin:0;
+      font-size: 26px;
+      letter-spacing: -0.4px;
+    }
+    .hero p{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .hero-right{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* Cards grid */
+    .stats-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (max-width: 1050px){
+      .stats-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px){
+      .nav-actions{ display:none; }
+      .stats-grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(232,237,246,.95);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .stat{
+      padding: 18px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 108px;
+    }
+    .stat .meta{
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat .label{
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .stat .value{
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .stat .sub{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .icon-badge{
+      width: 48px; height: 48px;
+      border-radius: 16px;
+      display:grid;
+      place-items:center;
+      border: 1px solid rgba(37,99,235,.22);
+      background: rgba(37,99,235,.08);
+      color: var(--blue);
+      flex: 0 0 auto;
+    }
+
+    /* Modules */
+    .modules-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (max-width: 1050px){
+      .modules-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px){
+      .modules-grid{ grid-template-columns: 1fr; }
+    }
+
+    .module{
+      padding: 18px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 168px;
+    }
+    .module .head{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .module h3{
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.2px;
+    }
+    .module p{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .module .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    .btn-mini{
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      font-size: 13px;
+    }
+    .btn-outline{
+      background: rgba(255,255,255,.7);
+      border-color: rgba(15,23,42,.18);
+    }
+    .btn-outline:hover{ border-color: rgba(37,99,235,.35); }
+    .btn-blue{
+      background: rgba(37,99,235,.12);
+      border-color: rgba(37,99,235,.22);
+      color: var(--blue);
+    }
+    .btn-blue:hover{ background: rgba(37,99,235,.16); }
+
+    /* Tables */
+    .split{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (max-width: 1050px){
+      .split{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      padding: 16px;
+    }
+    .panel .title-row{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .panel h4{
+      margin:0;
+      font-size: 16px;
+      letter-spacing: -0.2px;
+    }
+    .panel small{
+      color: var(--muted);
+      font-weight: 700;
+    }
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid rgba(232,237,246,.95);
+      background: rgba(255,255,255,.7);
+    }
+    th, td{
+      padding: 12px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(232,237,246,.95);
+      font-size: 13px;
+      vertical-align: top;
+    }
+    th{
+      font-size: 12px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: #334155;
+      background: rgba(37,99,235,.06);
+      font-weight: 900;
+    }
+    tr:last-child td{ border-bottom: none; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 12px;
+      border: 1px solid rgba(232,237,246,.95);
+      background: rgba(255,255,255,.8);
+      white-space: nowrap;
+    }
+    .pill.green{ border-color: rgba(22,163,74,.25); background: rgba(22,163,74,.10); color: var(--green); }
+    .pill.orange{ border-color: rgba(245,158,11,.25); background: rgba(245,158,11,.10); color: var(--orange); }
+    .pill.red{ border-color: rgba(239,68,68,.25); background: rgba(239,68,68,.10); color: var(--red); }
+    .pill.blue{ border-color: rgba(37,99,235,.25); background: rgba(37,99,235,.10); color: var(--blue); }
+
+    .muted{ color: var(--muted); font-weight: 600; }
+
+    /* Footer */
+    .footer{
+      margin-top: 22px;
+      border-top: 1px solid rgba(232,237,246,.95);
+      background: rgba(15, 23, 42, 0.92);
+      color: rgba(255,255,255,.86);
+    }
+    .footer-inner{
+      padding: 18px 0;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer-left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      font-weight: 700;
+    }
+    .footer-links{
+      display:flex;
+      align-items:center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-links a{
+      color: rgba(255,255,255,.78);
+      font-weight: 700;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .footer-links a:hover{ color: #fff; }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 14px;
+      box-shadow: 0 18px 36px rgba(0,0,0,.25);
+      max-width: 360px;
+      display:none;
+      z-index: 99;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .toast strong{ display:block; margin-bottom: 4px; }
+    .toast small{ color: rgba(255,255,255,.75); font-weight: 600; line-height: 1.4; }
+
+    .skeleton{
+      background: linear-gradient(90deg, rgba(148,163,184,.16), rgba(148,163,184,.26), rgba(148,163,184,.16));
+      background-size: 200% 100%;
+      animation: shimmer 1.15s infinite linear;
+      border-radius: 10px;
+      height: 14px;
+    }
+    @keyframes shimmer{
+      0%{ background-position: 0% 0; }
+      100%{ background-position: 200% 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-strip"></div>
+
+  <!-- NAV -->
+  <header class="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <div class="brand">
+          <div class="logo">CR</div>
+          <div class="brand-title">
+            <div class="t1">CarShowroom — Admin Panel</div>
+            <div class="t2">Manage showroom modules & activity</div>
+          </div>
+        </div>
+
+        <nav class="nav-links" id="navLinks">
+          <a class="nav-link active" href="#" data-page="dashboard"><i class="fa-solid fa-grid-2"></i> Dashboard</a>
+          <a class="nav-link" href="./pages/cars.html"><i class="fa-solid fa-car-side"></i> Cars</a>
+          <a class="nav-link" href="./pages/inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+          <a class="nav-link" href="./pages/customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+          <a class="nav-link" href="./pages/bookings.html"><i class="fa-regular fa-calendar-check"></i> Bookings</a>
+          <a class="nav-link" href="./pages/inquiries.html"><i class="fa-regular fa-comment-dots"></i> Inquiries</a>
+          <a class="nav-link" href="./pages/payments.html"><i class="fa-solid fa-credit-card"></i> Payments</a>
+          <a class="nav-link" href="./pages/owners.html"><i class="fa-solid fa-user-tie"></i> Owners</a>
+          <a class="nav-link" href="./pages/settings.html"><i class="fa-solid fa-gear"></i> Settings</a>
+        </nav>
+
+        <div class="nav-actions">
+          <div class="chip" title="Logged in admin">
+            <i class="fa-solid fa-user-shield"></i>
+            <div>
+              <div id="adminName">Admin</div>
+              <small id="adminRole">Super Admin</small>
+            </div>
+          </div>
+          <button class="btn btn-ghost" id="btnLogout" type="button" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="page">
+    <div class="container">
+
+      <section class="hero">
+        <div>
+          <h1>Admin Dashboard</h1>
+          <p>
+            Yahan se aap <b>customers, bookings, inquiries, payments</b> aur <b>inventory</b> sab manage kar sakte ho.
+            Inquiries jo customer panel se aayen, yahin “Recent Inquiries” me show hongi (API connect karna hoga).
+          </p>
+        </div>
+        <div class="hero-right">
+          <a class="btn btn-primary" href="./pages/inquiries.html">
+            <i class="fa-regular fa-comment-dots"></i> View Inquiries
+          </a>
+          <a class="btn btn-ghost" href="./pages/bookings.html">
+            <i class="fa-regular fa-calendar-check"></i> View Bookings
+          </a>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="stats-grid">
+        <div class="card stat">
+          <div class="meta">
+            <div class="label">Active Bookings</div>
+            <div class="value" id="statActiveBookings">—</div>
+            <div class="sub">Current active bookings</div>
+          </div>
+          <div class="icon-badge"><i class="fa-regular fa-calendar-check"></i></div>
+        </div>
+
+        <div class="card stat">
+          <div class="meta">
+            <div class="label">Pending Payments</div>
+            <div class="value" id="statPendingPayments">—</div>
+            <div class="sub">Unpaid / pending invoices</div>
+          </div>
+          <div class="icon-badge"><i class="fa-solid fa-credit-card"></i></div>
+        </div>
+
+        <div class="card stat">
+          <div class="meta">
+            <div class="label">New Inquiries</div>
+            <div class="value" id="statNewInquiries">—</div>
+            <div class="sub">Unread / new messages</div>
+          </div>
+          <div class="icon-badge"><i class="fa-regular fa-comment-dots"></i></div>
+        </div>
+
+        <div class="card stat">
+          <div class="meta">
+            <div class="label">Total Customers</div>
+            <div class="value" id="statTotalCustomers">—</div>
+            <div class="sub">Registered customers</div>
+          </div>
+          <div class="icon-badge"><i class="fa-solid fa-users"></i></div>
+        </div>
+      </section>
+
+      <!-- MODULES (same customer-like cards) -->
+      <section class="modules-grid">
+        <div class="card module">
+          <div class="head">
+            <div>
+              <h3>Customers</h3>
+              <p>Customer profiles, contact info, activity aur booking history manage karein.</p>
+            </div>
+            <div class="icon-badge"><i class="fa-solid fa-users"></i></div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-mini btn-blue" href="./pages/customers.html"><i class="fa-solid fa-eye"></i> View</a>
+            <a class="btn btn-mini btn-outline" href="./pages/customers.html#add"><i class="fa-solid fa-user-plus"></i> Add</a>
+          </div>
+        </div>
+
+        <div class="card module">
+          <div class="head">
+            <div>
+              <h3>Bookings</h3>
+              <p>Bookings list, customer details, status updates, approvals aur schedule tracking.</p>
+            </div>
+            <div class="icon-badge"><i class="fa-regular fa-calendar-check"></i></div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-mini btn-blue" href="./pages/bookings.html"><i class="fa-solid fa-eye"></i> View</a>
+            <a class="btn btn-mini btn-outline" href="./pages/bookings.html#pending"><i class="fa-solid fa-hourglass-half"></i> Pending</a>
+          </div>
+        </div>
+
+        <div class="card module">
+          <div class="head">
+            <div>
+              <h3>Inquiries</h3>
+              <p>Customer messages admin tak — reply, mark as read, aur tracking system.</p>
+            </div>
+            <div class="icon-badge"><i class="fa-regular fa-comment-dots"></i></div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-mini btn-blue" href="./pages/inquiries.html"><i class="fa-solid fa-inbox"></i> Inbox</a>
+            <a class="btn btn-mini btn-outline" href="./pages/inquiries.html#unread"><i class="fa-solid fa-circle-dot"></i> Unread</a>
+          </div>
+        </div>
+
+        <div class="card module">
+          <div class="head">
+            <div>
+              <h3>Cars</h3>
+              <p>Cars listing, offers, specs, images aur availability manage karein.</p>
+            </div>
+            <div class="icon-badge"><i class="fa-solid fa-car-side"></i></div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-mini btn-blue" href="./pages/cars.html"><i class="fa-solid fa-eye"></i> Browse</a>
+            <a class="btn btn-mini btn-outline" href="./pages/cars.html#add"><i class="fa-solid fa-plus"></i> Add Car</a>
+          </div>
+        </div>
+
+        <div class="card module">
+          <div class="head">
+            <div>
+              <h3>Inventory</h3>
+              <p>Stock control, availability, sold/reserved cars aur internal inventory tracking.</p>
+            </div>
+            <div class="icon-badge"><i class="fa-solid fa-boxes-stacked"></i></div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-mini btn-blue" href="./pages/inventory.html"><i class="fa-solid fa-eye"></i> View</a>
+            <a class="btn btn-mini btn-outline" href="./pages/inventory.html#add"><i class="fa-solid fa-plus"></i> Add Item</a>
+          </div>
+        </div>
+
+        <div class="card module">
+          <div class="head">
+            <div>
+              <h3>Payments</h3>
+              <p>Invoices, pending payments, receipts aur payment verification.</p>
+            </div>
+            <div class="icon-badge"><i class="fa-solid fa-credit-card"></i></div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-mini btn-blue" href="./pages/payments.html"><i class="fa-solid fa-eye"></i> View</a>
+            <a class="btn btn-mini btn-outline" href="./pages/payments.html#pending"><i class="fa-solid fa-triangle-exclamation"></i> Pending</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- RECENT DATA -->
+      <section class="split">
+        <div class="card panel">
+          <div class="title-row">
+            <div>
+              <h4>Recent Inquiries</h4>
+              <small>Customer panel se aane wale latest messages</small>
+            </div>
+            <a class="btn btn-mini btn-blue" href="./pages/inquiries.html"><i class="fa-solid fa-arrow-right"></i> Open</a>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="tblInquiries">
+              <tr>
+                <td colspan="4">
+                  <div class="skeleton" style="width: 100%; height: 14px;"></div>
+                  <div class="skeleton" style="width: 86%; margin-top: 10px;"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card panel">
+          <div class="title-row">
+            <div>
+              <h4>Recent Bookings</h4>
+              <small>Booking + customer info snapshot</small>
+            </div>
+            <a class="btn btn-mini btn-blue" href="./pages/bookings.html"><i class="fa-solid fa-arrow-right"></i> Open</a>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Car</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tblBookings">
+              <tr>
+                <td colspan="3">
+                  <div class="skeleton" style="width: 100%; height: 14px;"></div>
+                  <div class="skeleton" style="width: 78%; margin-top: 10px;"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FOOTER (same style as customer theme footer) -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <span style="opacity:.9;"><i class="fa-regular fa-copyright"></i> <span id="year"></span></span>
+          <span style="opacity:.9;">All rights reserved.</span>
+        </div>
+        <div class="footer-links">
+          <a href="#"><i class="fa-regular fa-file-lines"></i> Terms</a>
+          <a href="#"><i class="fa-solid fa-shield-halved"></i> Privacy</a>
+          <a href="#"><i class="fa-regular fa-life-ring"></i> Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast">
+    <strong id="toastTitle">Notice</strong>
+    <small id="toastMsg">…</small>
+  </div>
+
+  <script>
+    /**
+     * IMPORTANT:
+     * Ye dashboard front-end ready hai.
+     * Linking (inquiries, bookings, customers) ke liye aapko backend APIs deni hongi.
+     *
+     * Default API endpoints (aap apne hisaab se change kar sakte):
+     *  - GET /api/admin/summary
+     *  - GET /api/admin/inquiries?limit=6
+     *  - GET /api/admin/bookings?limit=6
+     *
+     * Agar aapka backend abhi nahi, to ye dummy fallback data show karega.
+     */
+
+    const API = {
+      summary: "/api/admin/summary",
+      inquiries: "/api/admin/inquiries?limit=6",
+      bookings: "/api/admin/bookings?limit=6",
+      logout: "/api/auth/logout"
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    function toast(title, msg){
+      el("toastTitle").textContent = title;
+      el("toastMsg").textContent = msg;
+      const t = el("toast");
+      t.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=> t.style.display = "none", 3200);
+    }
+
+    function fmtDate(d){
+      try{
+        const dt = new Date(d);
+        if (isNaN(dt.getTime())) return "-";
+        return dt.toLocaleString(undefined, {year:"numeric", month:"short", day:"2-digit"});
+      }catch(e){ return "-"; }
+    }
+
+    function pill(status){
+      const s = (status || "").toLowerCase();
+      let cls = "blue";
+      let text = status || "Unknown";
+
+      if (["unread","new","open"].includes(s)) cls = "orange";
+      if (["read","closed","resolved","completed","paid","approved"].includes(s)) cls = "green";
+      if (["rejected","cancelled","canceled","failed","overdue"].includes(s)) cls = "red";
+      if (["pending","processing"].includes(s)) cls = "orange";
+
+      return `<span class="pill ${cls}"><i class="fa-solid fa-circle"></i> ${text}</span>`;
+    }
+
+    function safeText(str){
+      return String(str ?? "").replace(/[<>&"]/g, (c) => ({
+        "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;"
+      }[c]));
+    }
+
+    async function fetchJSON(url){
+      const res = await fetch(url, { credentials: "include" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return await res.json();
+    }
+
+    function renderInquiries(items){
+      const tb = el("tblInquiries");
+      if (!items || !items.length){
+        tb.innerHTML = `<tr><td colspan="4" class="muted">No inquiries found.</td></tr>`;
+        return;
+      }
+      tb.innerHTML = items.map(x => {
+        const name = safeText(x.customerName || x.name || "Customer");
+        const email = safeText(x.customerEmail || x.email || "");
+        const msg = safeText(x.message || x.subject || "—");
+        const status = x.status || "Unread";
+        const date = fmtDate(x.createdAt || x.date || x.time);
+
+        return `
+          <tr>
+            <td>
+              <div style="font-weight:900">${name}</div>
+              <div class="muted">${email}</div>
+            </td>
+            <td style="max-width: 520px;">
+              <div style="font-weight:700; color:#0f172a">${msg}</div>
+              ${x.phone ? `<div class="muted">Phone: ${safeText(x.phone)}</div>` : ``}
+            </td>
+            <td>${pill(status)}</td>
+            <td class="muted">${date}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderBookings(items){
+      const tb = el("tblBookings");
+      if (!items || !items.length){
+        tb.innerHTML = `<tr><td colspan="3" class="muted">No bookings found.</td></tr>`;
+        return;
+      }
+      tb.innerHTML = items.map(x => {
+        const name = safeText(x.customerName || x.name || "Customer");
+        const car = safeText(x.carName || x.car || x.vehicle || "—");
+        const status = x.status || "Pending";
+        return `
+          <tr>
+            <td>
+              <div style="font-weight:900">${name}</div>
+              <div class="muted">${safeText(x.customerEmail || x.email || "")}</div>
+            </td>
+            <td>
+              <div style="font-weight:800">${car}</div>
+              <div class="muted">${x.slot ? `Slot: ${safeText(x.slot)}` : (x.date ? `Date: ${fmtDate(x.date)}` : "")}</div>
+            </td>
+            <td>${pill(status)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function applySummary(s){
+      // expected shape: { activeBookings, pendingPayments, newInquiries, totalCustomers, adminName, adminRole }
+      el("statActiveBookings").textContent = (s?.activeBookings ?? 0);
+      el("statPendingPayments").textContent = (s?.pendingPayments ?? 0);
+      el("statNewInquiries").textContent = (s?.newInquiries ?? 0);
+      el("statTotalCustomers").textContent = (s?.totalCustomers ?? 0);
+
+      if (s?.adminName) el("adminName").textContent = s.adminName;
+      if (s?.adminRole) el("adminRole").textContent = s.adminRole;
+    }
+
+    function setFallback(){
+      applySummary({
+        activeBookings: 0,
+        pendingPayments: 0,
+        newInquiries: 0,
+        totalCustomers: 0,
+        adminName: "Admin",
+        adminRole: "Super Admin"
+      });
+
+      renderInquiries([
+        {
+          customerName: "Demo Customer",
+          customerEmail: "demo@email.com",
+          message: "Is car available for test drive?",
+          status: "Unread",
+          createdAt: new Date().toISOString()
+        }
+      ]);
+
+      renderBookings([
+        {
+          customerName: "Demo Customer",
+          customerEmail: "demo@email.com",
+          carName: "Toyota Corolla 2020",
+          status: "Pending"
+        }
+      ]);
+
+      toast("API Not Connected", "Backend API endpoints connect karne par live data show hoga.");
+    }
+
+    async function loadDashboard(){
+      try{
+        const [summary, inquiries, bookings] = await Promise.all([
+          fetchJSON(API.summary),
+          fetchJSON(API.inquiries),
+          fetchJSON(API.bookings),
+        ]);
+
+        applySummary(summary);
+
+        // allow both shapes: {items:[...]} or [...]
+        renderInquiries(inquiries?.items || inquiries);
+        renderBookings(bookings?.items || bookings);
+
+      } catch (e){
+        // fallback if API not available
+        console.warn("Dashboard API error:", e);
+        setFallback();
+      }
+    }
+
+    // Logout button
+    el("btnLogout").addEventListener("click", async () => {
+      try{
+        // optional: call API logout if exists
+        await fetch(API.logout, { method: "POST", credentials: "include" }).catch(()=>{});
+      } finally{
+        // redirect to login
+        window.location.href = "./login.html";
+      }
+    });
+
+    // year
+    el("year").textContent = new Date().getFullYear();
+
+    // Start
+    loadDashboard();
+  </script>
+  <script src="./js/admin-auth.js"></script>
+<script>
+  // ✅ Guard: if not logged in => back to login
+  if (!window.AdminAuth || !AdminAuth.isLoggedIn()) {
+    window.location.href = "./login.html";
+  }
+</script>
+<script src="./js/pages/dashboard.js"></script>
+
+</body>
+</html>

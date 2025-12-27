@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support | CarRental</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{ --brand:#2563eb; --brand2:#7c3aed; --bg:#f6f7fb; --card:#fff; --muted:#64748b; --border:rgba(15,23,42,.08); --shadow:0 12px 30px rgba(2,6,23,.08); }
+    body{ background:var(--bg); }
+    .navbar{ background:rgba(255,255,255,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+    .brand-badge{ width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg,var(--brand),var(--brand2)); display:grid; place-items:center; color:#fff; box-shadow:var(--shadow); font-weight:800; }
+    .cardx{ background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); }
+    .muted{ color:var(--muted); }
+    .chip{ font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(15,23,42,.04); border:1px solid var(--border); color:var(--muted); }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container py-2">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.html">
+      <span class="brand-badge">CR</span>
+      <div class="d-flex flex-column lh-1">
+        <span class="fw-bold">CarRental</span>
+        <small class="text-secondary">Customer Panel</small>
+      </div>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto gap-lg-2">
+        <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2 me-1"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="inventory.html"><i class="bi bi-car-front me-1"></i> Browse Cars</a></li>
+        <li class="nav-item"><a class="nav-link" href="inquiries.html"><i class="bi bi-chat-dots me-1"></i> Inquiries</a></li>
+        <li class="nav-item"><a class="nav-link active" href="support.html"><i class="bi bi-question-circle me-1"></i> Support</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container my-4">
+
+  <section class="cardx p-4 mb-3">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h3 class="fw-bold mb-1">Help Center</h3>
+        <p class="muted mb-0">Help + messages. Dashboard me “Messages” count `contactMessages` se aata hai.</p>
+      </div>
+      <span class="chip">Messages: <b id="msgCount">0</b></span>
+    </div>
+  </section>
+
+  <section class="row g-3">
+    <div class="col-lg-6">
+      <div class="cardx p-4">
+        <h5 class="fw-bold mb-3">FAQs</h5>
+        <div class="accordion" id="faqAcc">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#f1">
+                Booking kaise create karun?
+              </button>
+            </h2>
+            <div id="f1" class="accordion-collapse collapse show" data-bs-parent="#faqAcc">
+              <div class="accordion-body">
+                Inventory/Browse Cars page par jaake “Book” karein (agar aapke inventory.js me booking flow bana hua hai).
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f2">
+                Dashboard pe counts kahan se aate hain?
+              </button>
+            </h2>
+            <div id="f2" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+              <div class="accordion-body">
+                Saved Cars: <code>cs_cars</code> / <code>cartItems</code> <br>
+                Inquiries: <code>cs_inquiries</code> <br>
+                Messages: <code>contactMessages</code>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="cardx p-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="fw-bold mb-0">Contact Support</h5>
+          <a class="btn btn-outline-primary btn-sm" href="contact.html">
+            <i class="bi bi-envelope me-1"></i> Contact Page
+          </a>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label small">Topic</label>
+          <input id="msgTopic" class="form-control" placeholder="e.g. Payment issue">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label small">Message</label>
+          <textarea id="msgBody" rows="4" class="form-control" placeholder="Write your message..."></textarea>
+        </div>
+
+        <button class="btn btn-primary w-100" id="btnSend">
+          <i class="bi bi-send me-1"></i> Send
+        </button>
+
+        <div class="muted small mt-2">Ye message localStorage me save hoga: <code>contactMessages</code></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cardx p-4 mt-3">
+    <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+      <h5 class="fw-bold mb-0">Your Messages</h5>
+      <button class="btn btn-outline-danger btn-sm" id="btnClearAll">
+        <i class="bi bi-trash3 me-1"></i> Clear All
+      </button>
+    </div>
+
+    <div class="list-group" id="msgList"></div>
+
+    <div class="text-center muted py-4 d-none" id="emptyState">
+      <i class="bi bi-inbox fs-3"></i>
+      <div class="mt-2">No messages yet.</div>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+
+    const KEY = "contactMessages";
+
+    const safeParse = (key, fallback) => {
+      try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+      catch { return fallback; }
+    };
+
+    const load = () => {
+      const arr = safeParse(KEY, []);
+      return Array.isArray(arr) ? arr : [];
+    };
+
+    const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
+
+    const msgCount = document.getElementById("msgCount");
+    const msgList = document.getElementById("msgList");
+    const emptyState = document.getElementById("emptyState");
+
+    const topicEl = document.getElementById("msgTopic");
+    const bodyEl = document.getElementById("msgBody");
+    const btnSend = document.getElementById("btnSend");
+    const btnClearAll = document.getElementById("btnClearAll");
+
+    const fmt = (ts) => {
+      try { return new Date(ts).toLocaleString(); } catch { return ""; }
+    };
+
+    const render = () => {
+      const data = load();
+      msgCount.textContent = data.length;
+
+      if (!data.length) {
+        msgList.innerHTML = "";
+        emptyState.classList.remove("d-none");
+        return;
+      }
+      emptyState.classList.add("d-none");
+
+      const sorted = [...data].sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+
+      msgList.innerHTML = sorted.map(m => `
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold">${m.topic || "Support Message"}</div>
+              <div class="text-secondary small">${fmt(m.createdAt)}</div>
+            </div>
+            <span class="badge text-bg-primary">Sent</span>
+          </div>
+          <div class="mt-2">${(m.message || "").replaceAll("<","&lt;")}</div>
+          <div class="mt-3">
+            <button class="btn btn-outline-danger btn-sm" data-del="${m.id}">
+              <i class="bi bi-trash3 me-1"></i> Delete
+            </button>
+          </div>
+        </div>
+      `).join("");
+
+      msgList.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-del");
+          const updated = load().filter(x => String(x.id) !== String(id));
+          save(updated);
+          render();
+        });
+      });
+    };
+
+    btnSend.addEventListener("click", () => {
+      const topic = topicEl.value.trim();
+      const message = bodyEl.value.trim();
+      if (!topic || !message) {
+        alert("Topic aur Message dono required hain.");
+        return;
+      }
+
+      const data = load();
+      data.push({ id: Date.now(), topic, message, createdAt: Date.now() });
+      save(data);
+
+      topicEl.value = "";
+      bodyEl.value = "";
+      render();
+      alert("Message sent (saved).");
+    });
+
+    btnClearAll.addEventListener("click", () => {
+      if (!confirm("Clear all support messages?")) return;
+      save([]);
+      render();
+    });
+
+    render();
+  });
+</script>
+
+</body>
+</html>

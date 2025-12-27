@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarShowroom | Home</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Your existing CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Extra safe + advanced responsive/animation styles -->
+  <style>
+    :root{
+      --nav:#0b2431;
+      --accent:#f7b500;
+      --dark:#0b1115;
+      --glass: rgba(11, 36, 49, .72);
+      --ring: rgba(247,181,0,.45);
+      --shadow: 0 16px 40px rgba(0,0,0,.18);
+    }
+
+    
+    body{ padding-top: 82px; }
+
+    /* Smooth base */
+    html { scroll-behavior: smooth; }
+    body{
+      overflow-x: hidden;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .section-pad{ padding: 70px 0; }
+    .section-title{ font-weight: 900; letter-spacing: .2px; }
+
+    .dark-sec{ background: #071b25; }
+    .light-sec{ background: #f7f8fa; }
+
+    .muted-text{ color: rgba(255,255,255,.75); }
+
+    /* Navbar */
+    .navbar.navbar-custom{
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    }
+
+    /* Better responsiveness helpers */
+    .container{ max-width: 1200px; }
+    @media (max-width: 991px){
+      body{ padding-top: 76px; }
+      .section-pad{ padding: 56px 0; }
+    }
+    @media (max-width: 575px){
+      .section-pad{ padding: 48px 0; }
+    }
+
+    /* Cards (featured/testimonials) */
+    .card-soft{
+      border: 0;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      background:#fff;
+      height: 100%;
+      transform: translateY(0);
+      transition: transform .25s ease, box-shadow .25s ease;
+      will-change: transform;
+    }
+    .card-soft:hover{
+      transform: translateY(-10px);
+      box-shadow: 0 24px 60px rgba(0,0,0,.22);
+    }
+
+    .mini-badge{
+      display:inline-block;
+      background: var(--accent);
+      color:#0b1115;
+      font-weight:900;
+      padding:6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+      transform: translateY(0);
+      transition: transform .2s ease, filter .2s ease;
+    }
+
+    /* Buttons: hover float + glow */
+    .btn-gold,
+    .btn-dark2,
+    .btn-primary-custom,
+    .btn-login{
+      transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+      will-change: transform;
+    }
+
+    .btn-gold{
+      background: var(--accent);
+      color:#0b1115;
+      font-weight: 900;
+      border-radius: 12px;
+      padding: 12px 18px;
+      border: none;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 14px 26px rgba(247,181,0,.18);
+    }
+    .btn-gold:hover{
+      transform: translateY(-6px);
+      box-shadow: 0 18px 34px rgba(247,181,0,.30);
+      filter: brightness(0.98);
+    }
+
+    .btn-dark2{
+      background:#1e2328;
+      color:#fff;
+      font-weight: 900;
+      border-radius: 12px;
+      padding: 12px 18px;
+      border: none;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 14px 26px rgba(0,0,0,.22);
+    }
+    .btn-dark2:hover{
+      transform: translateY(-6px);
+      box-shadow: 0 18px 38px rgba(0,0,0,.30);
+      filter: brightness(1.06);
+    }
+
+    /* Accessible focus ring */
+    a:focus-visible, button:focus-visible{
+      outline: none;
+      box-shadow: 0 0 0 4px var(--ring) !important;
+      border-radius: 12px;
+    }
+
+    /* Hero improvements */
+    .hero{
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(900px 380px at 50% 0%, rgba(247,181,0,.22), transparent 60%),
+                  radial-gradient(800px 360px at 20% 10%, rgba(255,255,255,.10), transparent 60%);
+      pointer-events:none;
+    }
+    .hero .hero-content{
+      position: relative;
+      max-width: 980px;
+      padding: 14px 16px;
+    }
+    .hero h1{
+      font-weight: 900;
+      letter-spacing: -.4px;
+      line-height: 1.1;
+      font-size: clamp(30px, 4vw, 56px);
+    }
+    .hero p{
+      font-size: clamp(14px, 2.2vw, 18px);
+      opacity: .95;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Feature chips */
+    .feature-chips{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      justify-content: center;
+    }
+    .chip{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      color:#fff;
+      font-weight: 800;
+      backdrop-filter: blur(10px);
+      transition: transform .25s ease, background .25s ease, border-color .25s ease;
+    }
+    .chip:hover{
+      transform: translateY(-6px);
+      background: rgba(255,255,255,.14);
+      border-color: rgba(247,181,0,.45);
+    }
+    .chip .dot{
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(247,181,0,.95);
+      color:#0b1115;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      font-size: 14px;
+      flex: 0 0 26px;
+      transition: transform .25s ease;
+    }
+    .chip:hover .dot{ transform: rotate(-8deg) scale(1.05); }
+
+    /* Stats */
+    .stat-box{
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 18px;
+      padding: 18px;
+      color:#fff;
+      height: 100%;
+      transition: transform .25s ease, border-color .25s ease, background .25s ease;
+    }
+    .stat-box:hover{
+      transform: translateY(-8px);
+      border-color: rgba(247,181,0,.35);
+      background: rgba(255,255,255,.12);
+    }
+    .stat-num{ font-size: 28px; font-weight: 900; }
+
+    /* Testimonial cards */
+    .testi{
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      height: 100%;
+      box-shadow: 0 16px 40px rgba(0,0,0,.12);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .testi:hover{
+      transform: translateY(-10px);
+      box-shadow: 0 22px 56px rgba(0,0,0,.18);
+    }
+    .testi small{ color: rgba(0,0,0,.55); font-weight: 700; }
+
+    /* Featured car images + hover zoom */
+    .car-media{ position: relative; overflow: hidden; }
+    .car-img{
+      width:100%;
+      height: 190px;
+      object-fit: cover;
+      display:block;
+      background:#e9ecef;
+      transform: scale(1);
+      transition: transform .45s ease;
+    }
+    .card-soft:hover .car-img{ transform: scale(1.06); }
+
+    /* Subtle overlay on hover */
+    .car-media::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to top, rgba(0,0,0,.12), transparent 60%);
+      opacity: 0;
+      transition: opacity .3s ease;
+      pointer-events:none;
+    }
+    .card-soft:hover .car-media::after{ opacity: 1; }
+
+    /* Reveal on scroll animation */
+    .reveal{
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal.delay-1{ transition-delay: .08s; }
+    .reveal.delay-2{ transition-delay: .16s; }
+    .reveal.delay-3{ transition-delay: .24s; }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce){
+      html{ scroll-behavior: auto; }
+      .reveal, .reveal.show, .card-soft, .testi, .stat-box, .chip,
+      .btn-gold, .btn-dark2, .btn-primary-custom, .btn-login, .car-img{
+        transition: none !important;
+        transform: none !important;
+      }
+    }
+
+    /* Hide/show login CTA section on auth */
+    #loginCtaWrap{ display:block; }
+  </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+  <div class="container">
+
+    <a class="navbar-brand d-flex align-items-center fw-bold" href="index.html">
+      <span class="brand-circle">C</span> CarShowroom
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item">
+          <a class="nav-link active" href="index.html">Home</a>
+        </li>
+
+        <!-- Cars: show only after customer login -->
+        <li class="nav-item">
+          <a class="nav-link active" id="navCars" href="cars.html" style="display:none;">Cars</a>
+        </li>
+
+        <!-- Dashboard: show only after customer login -->
+        <li class="nav-item">
+          <a class="nav-link active" id="navDashboard" href="customer/dashboard.html" style="display:none;">
+            Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="contact.html">Contact</a>
+        </li>
+      </ul>
+
+      <!-- Right buttons -->
+      <div class="ms-lg-3 mt-3 mt-lg-0 d-flex gap-2 flex-wrap align-items-center">
+
+        <!-- Customer Sign In (hide after login) -->
+        <a class="btn-login" id="navSignIn" href="customer/login.html">Customer Sign In</a>
+
+        <!-- Admin always visible -->
+        <a class="btn-login" href="admin/login.html">Admin Login</a>
+
+        <!-- Logout (show only after login) -->
+        <button class="btn-login" id="navLogout" style="display:none;" type="button">
+          Logout
+        </button>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<header class="hero">
+  <div class="hero-content container text-center reveal show">
+    <span class="mini-badge">Premium Showroom</span>
+    <h1 class="mt-3">Welcome to CarShowroom</h1>
+
+    <p class="mt-2">
+      Explore premium vehicles, book visits, and contact our team for expert assistance.
+    </p>
+
+    <!-- NEW: feature chips -->
+    <div class="feature-chips">
+      <div class="chip"><span class="dot">✓</span> Verified Listings</div>
+      <div class="chip"><span class="dot">⚡</span> Fast Inquiry</div>
+      <div class="chip"><span class="dot">★</span> Premium Brands</div>
+    </div>
+
+    <div class="hero-actions d-flex justify-content-center flex-wrap mt-4 gap-2">
+      <a class="btn-primary-custom" href="contact.html">Make an Inquiry</a>
+      <a class="btn-gold" href="#featured">View Featured</a>
+    </div>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="section-pad dark-sec">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-3 reveal">
+        <div class="stat-box">
+          <div class="stat-num">250+</div>
+          <div class="muted-text">Cars Listed</div>
+        </div>
+      </div>
+      <div class="col-md-3 reveal delay-1">
+        <div class="stat-box">
+          <div class="stat-num">120+</div>
+          <div class="muted-text">Happy Customers</div>
+        </div>
+      </div>
+      <div class="col-md-3 reveal delay-2">
+        <div class="stat-box">
+          <div class="stat-num">30+</div>
+          <div class="muted-text">Top Brands</div>
+        </div>
+      </div>
+      <div class="col-md-3 reveal delay-3">
+        <div class="stat-box">
+          <div class="stat-num">24/7</div>
+          <div class="muted-text">Support</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED CARS -->
+<section class="section-pad light-sec" id="featured">
+  <div class="container">
+    <div class="d-flex align-items-end justify-content-between flex-wrap gap-2 mb-4">
+      <div class="reveal">
+        <h2 class="section-title mb-1">Featured Cars</h2>
+        <p class="mb-0" style="color:rgba(0,0,0,.65); font-weight:650;">
+          Popular picks from top brands (showcase).
+        </p>
+      </div>
+      <a class="btn-gold reveal" href="contact.html">Request a Quote</a>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- 1 -->
+      <div class="col-md-6 col-lg-3 reveal">
+        <div class="card card-soft">
+          <div class="car-media">
+            <img class="car-img"
+                 src="assets/images/car1.jpg"
+                 alt="Toyota Corolla"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1200&q=70';">
+          </div>
+          <div class="p-3">
+            <h5 class="fw-bold mb-1">Toyota Corolla</h5>
+            <div class="text-muted fw-semibold">Automatic • Premium</div>
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+              <span class="fw-bold">PKR 5,200,000</span>
+              <span class="mini-badge">Hot</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="col-md-6 col-lg-3 reveal delay-1">
+        <div class="card card-soft">
+          <div class="car-media">
+            <img class="car-img"
+                 src="assets/images/car2.jpg"
+                 alt="Honda Civic"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=70';">
+          </div>
+          <div class="p-3">
+            <h5 class="fw-bold mb-1">Honda Civic</h5>
+            <div class="text-muted fw-semibold">Automatic • Premium</div>
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+              <span class="fw-bold">PKR 7,200,000</span>
+              <span class="mini-badge">New</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="col-md-6 col-lg-3 reveal delay-2">
+        <div class="card card-soft">
+          <div class="car-media">
+            <img class="car-img"
+                 src="assets/images/car3.jpg"
+                 alt="BMW 7 Series"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1200&q=70';">
+          </div>
+          <div class="p-3">
+            <h5 class="fw-bold mb-1">BMW 7 Series</h5>
+            <div class="text-muted fw-semibold">Luxury • Sedan</div>
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+              <span class="fw-bold">PKR 22,500,000</span>
+              <span class="mini-badge">VIP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="col-md-6 col-lg-3 reveal delay-3">
+        <div class="card card-soft">
+          <div class="car-media">
+            <img class="car-img"
+                 src="assets/images/car4.jpg"
+                 alt="KIA Sportage"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1200&q=70';">
+          </div>
+          <div class="p-3">
+            <h5 class="fw-bold mb-1">KIA Sportage</h5>
+            <div class="text-muted fw-semibold">SUV • Automatic</div>
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+              <span class="fw-bold">PKR 9,800,000</span>
+              <span class="mini-badge">Best</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Login CTA (ONLY when logged out) -->
+    <div class="text-center mt-5 reveal" id="loginCtaWrap">
+      <p class="mb-3" style="color:rgba(0,0,0,.65); font-weight:650;">
+        Sign in to unlock full access to Cars and your Dashboard.
+      </p>
+      <a class="btn-dark2" href="customer/login.html">Sign In to View Cars</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="section-pad dark-sec">
+  <div class="container">
+    <h2 class="section-title text-white mb-4 reveal">Why Choose CarShowroom?</h2>
+
+    <div class="row g-4">
+      <div class="col-md-4 reveal">
+        <div class="stat-box">
+          <h5 class="fw-bold mb-2">Verified Inventory</h5>
+          <p class="muted-text mb-0">Reliable browsing experience with basic listing checks.</p>
+        </div>
+      </div>
+      <div class="col-md-4 reveal delay-1">
+        <div class="stat-box">
+          <h5 class="fw-bold mb-2">Easy Inquiry</h5>
+          <p class="muted-text mb-0">Send an inquiry in one click — our team responds quickly.</p>
+        </div>
+      </div>
+      <div class="col-md-4 reveal delay-2">
+        <div class="stat-box">
+          <h5 class="fw-bold mb-2">Customer Dashboard</h5>
+          <p class="muted-text mb-0">Manage your profile and orders easily after login.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-pad light-sec">
+  <div class="container">
+    <h2 class="section-title mb-4 reveal">How it Works</h2>
+
+    <div class="row g-4">
+      <div class="col-md-4 reveal">
+        <div class="testi">
+          <div class="mini-badge">Step 1</div>
+          <h5 class="fw-bold mt-3">Sign In</h5>
+          <p class="mb-0" style="color:rgba(0,0,0,.65); font-weight:650;">
+            Log in using your customer account.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4 reveal delay-1">
+        <div class="testi">
+          <div class="mini-badge">Step 2</div>
+          <h5 class="fw-bold mt-3">Browse Cars</h5>
+          <p class="mb-0" style="color:rgba(0,0,0,.65); font-weight:650;">
+            View listings and add cars to your cart.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4 reveal delay-2">
+        <div class="testi">
+          <div class="mini-badge">Step 3</div>
+          <h5 class="fw-bold mt-3">Place Order</h5>
+          <p class="mb-0" style="color:rgba(0,0,0,.65); font-weight:650;">
+            Place your order and track it in your dashboard.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section-pad dark-sec">
+  <div class="container">
+    <h2 class="section-title text-white mb-4 reveal">What Customers Say</h2>
+
+    <div class="row g-4">
+      <div class="col-md-4 reveal">
+        <div class="testi">
+          <p class="mb-2 fw-semibold">“Amazing showroom, easy to use system!”</p>
+          <small>— Sara</small>
+        </div>
+      </div>
+      <div class="col-md-4 reveal delay-1">
+        <div class="testi">
+          <p class="mb-2 fw-semibold">“Premium cars and a smooth experience.”</p>
+          <small>— Ali</small>
+        </div>
+      </div>
+      <div class="col-md-4 reveal delay-2">
+        <div class="testi">
+          <p class="mb-2 fw-semibold">“Dashboard is helpful for tracking orders.”</p>
+          <small>— Ayesha</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section-pad" style="background:#06141c;">
+  <div class="container text-center text-white">
+    <h2 class="section-title mb-2 reveal">Ready to explore premium cars?</h2>
+    <p class="muted-text mb-4 reveal delay-1">Sign in to unlock Cars + Dashboard features.</p>
+    <div class="d-flex justify-content-center gap-2 flex-wrap reveal delay-2">
+      <a class="btn-gold" href="customer/login.html">Customer Sign In</a>
+      <a class="btn-dark2" href="contact.html">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  CarShowroom Management System © 2025 | All Rights Reserved
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ADVANCED UX SCRIPT: reveal on scroll + navbar auth -->
+<script>
+  // Reveal on scroll (IntersectionObserver)
+  (function(){
+    const items = document.querySelectorAll(".reveal");
+    if(!items.length) return;
+
+    // if browser doesn't support, show all
+    if(!("IntersectionObserver" in window)){
+      items.forEach(el => el.classList.add("show"));
+      return;
+    }
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add("show");
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    items.forEach(el => obs.observe(el));
+  })();
+
+  // AUTH NAV SCRIPT
+  function updateNavbarAuth(){
+    const logged = localStorage.getItem("customerLoggedIn") === "true";
+
+    const cars = document.getElementById("navCars");
+    const dash = document.getElementById("navDashboard");
+    const signIn = document.getElementById("navSignIn");
+    const logout = document.getElementById("navLogout");
+    const loginCta = document.getElementById("loginCtaWrap");
+
+    if(logged){
+      if(cars) cars.style.display = "inline-block";
+      if(dash) dash.style.display = "inline-block";
+      if(logout) logout.style.display = "inline-block";
+      if(signIn) signIn.style.display = "none";
+      if(loginCta) loginCta.style.display = "none";
+    }else{
+      if(cars) cars.style.display = "none";
+      if(dash) dash.style.display = "none";
+      if(logout) logout.style.display = "none";
+      if(signIn) signIn.style.display = "inline-block";
+      if(loginCta) loginCta.style.display = "block";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", updateNavbarAuth);
+
+  const logoutBtn = document.getElementById("navLogout");
+  if(logoutBtn){
+    logoutBtn.addEventListener("click", function(){
+      localStorage.removeItem("customerLoggedIn");
+      localStorage.removeItem("customerData");
+      updateNavbarAuth();
+      window.location.href = "index.html";
+    });
+  }
+</script>
+
+</body>
+</html>

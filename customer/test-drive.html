@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Test Drive | CarShowroom</title>
+
+  <style>
+    :root{
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --text: #0b1220;
+      --muted: #5b677a;
+      --line: rgba(15, 23, 42, 0.10);
+      --primary: #2563eb;
+      --primary-2: #1d4ed8;
+      --shadow: 0 20px 60px rgba(2, 6, 23, 0.10);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 50% 0%, rgba(37,99,235,0.08), transparent 60%),
+                  linear-gradient(180deg, #ffffff, var(--bg));
+    }
+
+    /* NAVBAR */
+    .nav{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 220px;
+    }
+    .logo{
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(37,99,235,0.08));
+      border: 1px solid var(--line);
+      display:grid;
+      place-items:center;
+      font-weight: 800;
+      letter-spacing: .5px;
+      color: var(--text);
+    }
+    .brand-txt{ line-height: 1.1; }
+    .brand-txt b{ display:block; font-size: 16px; }
+    .brand-txt span{ display:block; font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content:center;
+    }
+    .nav-links a{
+      text-decoration:none;
+      color: var(--text);
+      font-weight: 650;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      transition: background .2s, transform .2s;
+    }
+    .nav-links a:hover{ background: rgba(2,6,23,0.05); transform: translateY(-1px); }
+
+    .nav-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 220px;
+      justify-content:flex-end;
+    }
+    .btn{
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor:pointer;
+      transition: transform .2s, box-shadow .2s, background .2s, border-color .2s;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 8px;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 12px 30px rgba(2,6,23,0.08); }
+    .btn.primary{
+      background: var(--primary);
+      color: #fff;
+      border-color: rgba(37,99,235,0.35);
+    }
+    .btn.primary:hover{ background: var(--primary-2); }
+
+    .icon{
+      width: 18px; height: 18px; display:inline-block;
+    }
+
+    /* LAYOUT */
+    .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 18px 80px;
+    }
+
+    .hero-card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card:before{
+      content:"";
+      position:absolute;
+      inset: -40% -30% auto -30%;
+      height: 340px;
+      background: radial-gradient(closest-side, rgba(37,99,235,0.14), transparent 70%);
+      pointer-events:none;
+    }
+
+    .pill{
+      width: fit-content;
+      margin: 0 auto 10px;
+      background: rgba(2,6,23,0.03);
+      border: 1px solid var(--line);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      font-size: 12px;
+      color: rgba(2,6,23,0.80);
+      position:relative;
+      z-index:1;
+    }
+
+    .title{
+      text-align:center;
+      font-size: clamp(28px, 4vw, 44px);
+      margin: 10px 0 16px;
+      position:relative;
+      z-index:1;
+    }
+    .subtitle{
+      text-align:center;
+      color: var(--muted);
+      font-weight: 650;
+      margin: 0 0 22px;
+      position:relative;
+      z-index:1;
+    }
+
+    /* CAR SELECTOR */
+    .car-stage{
+      position:relative;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(2,6,23,0.02), rgba(2,6,23,0.00));
+      border: 1px solid var(--line);
+      padding: 18px 18px 22px;
+      overflow:hidden;
+    }
+
+    .car-top{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .car-top .select{
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 750;
+      color: var(--text);
+      min-width: 260px;
+      outline:none;
+    }
+
+    .carousel{
+      display:grid;
+      grid-template-columns: 64px 1fr 64px;
+      align-items:center;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .nav-arrow{
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.9);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .nav-arrow:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(2,6,23,0.08);
+    }
+
+    .car-center{
+      min-height: 320px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 14px 8px;
+    }
+
+    .car-img{
+      width: min(720px, 100%);
+      max-height: 260px;
+      object-fit: contain;
+      filter: drop-shadow(0 30px 40px rgba(2,6,23,0.14));
+      border-radius: 16px;
+      background: rgba(255,255,255,0.6);
+    }
+
+    .car-name{
+      margin: 12px 0 4px;
+      font-size: 20px;
+      font-weight: 850;
+    }
+    .car-price{
+      margin: 0;
+      color: var(--muted);
+      font-weight: 750;
+    }
+    .car-meta{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content:center;
+    }
+    .chip{
+      background: rgba(37,99,235,0.08);
+      border: 1px solid rgba(37,99,235,0.18);
+      color: rgba(2,6,23,0.85);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 750;
+      font-size: 12px;
+    }
+
+    /* ACTION BAR (Book / Service) */
+    .actions{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content:center;
+      margin-top: 18px;
+    }
+
+    /* FORM */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+      margin-top: 18px;
+      align-items:start;
+    }
+
+    .panel{
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .panel h3{
+      margin: 0 0 12px;
+      font-size: 16px;
+      letter-spacing: .3px;
+    }
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field{ display:flex; flex-direction:column; gap:6px; }
+    .field label{
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(2,6,23,0.75);
+    }
+    .field input, .field select, .field textarea{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      outline:none;
+      font-weight: 650;
+      background:#fff;
+    }
+    .field textarea{ min-height: 92px; resize: vertical; grid-column: 1 / -1; }
+    .span-2{ grid-column: 1 / -1; }
+
+    .note{
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 6px 0 0;
+    }
+
+    /* FOOTER */
+    footer{
+      margin-top: 26px;
+      background: linear-gradient(180deg, #0b1220, #050a14);
+      color: rgba(255,255,255,0.86);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-inner{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .footer-left{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+    .footer-right{
+      display:flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .footer-right a{
+      color: rgba(255,255,255,0.82);
+      text-decoration:none;
+      font-weight: 700;
+      opacity: .92;
+    }
+    .footer-right a:hover{ opacity: 1; text-decoration: underline; }
+
+    /* MODAL */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background: rgba(2,6,23,0.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 100;
+    }
+    .modal{
+      width: min(520px, 100%);
+      background:#fff;
+      border-radius: 22px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .modal h4{ margin: 0 0 6px; font-size: 18px; }
+    .modal p{ margin: 0 0 14px; color: var(--muted); line-height: 1.5; }
+    .modal-actions{ display:flex; justify-content:flex-end; gap:10px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+      .nav-inner{ gap: 10px; }
+      .brand{ min-width: auto; }
+      .nav-actions{ min-width: auto; }
+      .carousel{ grid-template-columns: 56px 1fr 56px; }
+    }
+    @media (max-width: 560px){
+      .form{ grid-template-columns: 1fr; }
+      .nav-links{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <header class="nav">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="logo">CS</div>
+        <div class="brand-txt">
+          <b>CarShowroom</b>
+          <span>Customer Panel</span>
+        </div>
+      </div>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#vehicles" data-scroll>Vehicles</a>
+        <a href="#testdrive" data-scroll>Test Drive</a>
+        <a href="#owners" data-scroll>Owners</a>
+        <a href="#dealers" data-scroll>Dealerships</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn" id="btnSearch" type="button" title="Search">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M16.2 16.2 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Search
+        </button>
+        <a class="btn primary" href="#testdrive" data-scroll>Book Now</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="vehicles" class="hero-card" style="margin-bottom:16px;">
+      <div class="pill">SELECT MODEL</div>
+      <h1 class="title">Choose your car</h1>
+      <p class="subtitle">Select a model, see its picture, then book your test drive.</p>
+
+      <div class="car-stage" id="testdrive">
+        <div class="car-top">
+          <select class="select" id="carSelect" aria-label="Select car model"></select>
+        </div>
+
+        <div class="carousel">
+          <button class="nav-arrow" id="prevBtn" type="button" aria-label="Previous car">
+            <svg class="icon" viewBox="0 0 24 24" fill="none">
+              <path d="M14.5 6 8.5 12l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <div class="car-center">
+            <img id="carImage" class="car-img" alt="Selected car image" />
+            <div class="car-name" id="carName">—</div>
+            <p class="car-price" id="carPrice">—</p>
+            <div class="car-meta" id="carMeta"></div>
+          </div>
+
+          <button class="nav-arrow" id="nextBtn" type="button" aria-label="Next car">
+            <svg class="icon" viewBox="0 0 24 24" fill="none">
+              <path d="M9.5 18 15.5 12l-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="btnBookTestDrive" type="button">Book Test Drive</button>
+
+          <!-- ✅ Service Booking button (functional with fallback) -->
+          <a class="btn" id="btnServiceBooking" href="service-booking.html">Service Booking</a>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h3>Test Drive Details</h3>
+
+          <form class="form" id="testDriveForm">
+            <div class="field">
+              <label for="fullName">Full name</label>
+              <input id="fullName" name="fullName" placeholder="e.g., Ali Khan" required />
+            </div>
+
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" placeholder="03xx-xxxxxxx" required />
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@email.com" />
+            </div>
+
+            <div class="field">
+              <label for="city">City</label>
+              <input id="city" name="city" placeholder="Karachi / Lahore / ..." required />
+            </div>
+
+            <div class="field">
+              <label for="date">Preferred date</label>
+              <input id="date" name="date" type="date" required />
+            </div>
+
+            <div class="field">
+              <label for="time">Preferred time</label>
+              <input id="time" name="time" type="time" required />
+            </div>
+
+            <div class="field span-2">
+              <label for="pickup">Showroom / Pickup location</label>
+              <input id="pickup" name="pickup" placeholder="e.g., Main Showroom, Shahrah-e-Faisal" required />
+            </div>
+
+            <div class="field">
+              <label for="selectedModel">Selected model</label>
+              <input id="selectedModel" name="selectedModel" readonly />
+            </div>
+
+            <div class="field">
+              <label for="priceShown">Price shown</label>
+              <input id="priceShown" name="priceShown" readonly />
+            </div>
+
+            <div class="field">
+              <label for="license">Driving license (optional)</label>
+              <input id="license" name="license" placeholder="CNIC / License no." />
+            </div>
+
+            <div class="field">
+              <label for="contactMode">Contact preference</label>
+              <select id="contactMode" name="contactMode">
+                <option value="Call">Call</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Email">Email</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="notes">Notes (optional)</label>
+              <textarea id="notes" name="notes" placeholder="Any specific requirements..."></textarea>
+            </div>
+
+            <div class="field span-2" style="display:flex; gap:10px; flex-direction:row; align-items:center; justify-content:flex-end;">
+              <button class="btn" type="reset">Reset</button>
+              <button class="btn primary" type="submit">Confirm Booking</button>
+            </div>
+          </form>
+
+          <p class="note">
+            Note: This is a demo flow. It saves bookings in <b>localStorage</b>. For real system, connect backend/API.
+          </p>
+        </div>
+
+        <aside class="panel">
+          <h3>Quick Actions</h3>
+          <p class="note" style="margin-top:0;">
+            Search demo prompt open karta hai. “Service Booking” ab proper page open karega.
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+            <a class="btn" href="#owners" data-scroll>Owners Section</a>
+            <a class="btn" href="#dealers" data-scroll>Dealerships Section</a>
+            <a class="btn primary" href="#testdrive" data-scroll>Back to Test Drive</a>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line); margin:16px 0;" />
+
+          <h3>Tip (Images)</h3>
+          <p class="note">
+            Agar aap apni local images use karna chaho:<br/>
+            <b>assets/cars/</b> folder banao aur code me image path update kar do.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="owners" class="hero-card" style="margin-bottom:16px;">
+      <h2 style="margin:0 0 8px;">Owners</h2>
+      <p class="note" style="margin:0;">Yahan owners related content aa sakta hai.</p>
+    </section>
+
+    <section id="dealers" class="hero-card">
+      <h2 style="margin:0 0 8px;">Dealerships</h2>
+      <p class="note" style="margin:0;">Yahan dealership list/map aa sakta hai.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="logo" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); color:rgba(255,255,255,0.9);">CS</div>
+        <div>
+          <div style="font-weight:900; letter-spacing:.2px;">CarShowroom — Customer Panel</div>
+          <div style="opacity:.78; font-weight:700; font-size: 12px;">© <span id="year"></span> All rights reserved.</div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="contact.html">Support</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h4 id="modalTitle">Booking Confirmed</h4>
+      <p id="modalText"></p>
+      <div class="modal-actions">
+        <button class="btn" id="modalClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Direct stable images (Wikimedia) — Google Images hotlink recommended nahi hota
+    const cars = [
+      {
+        id: "corolla-cross",
+        name: "Toyota Corolla Cross",
+        priceText: "From PKR 7,490,000 – 9,560,000 (replace with your actual)",
+        image: "https://commons.wikimedia.org/wiki/Special:FilePath/2020%20Toyota%20Corolla%20Cross%20-%20Front.jpg?width=1200",
+        meta: ["SUV", "Toyota", "Automatic"]
+      },
+      {
+        id: "civic",
+        name: "Honda Civic (11th Gen)",
+        priceText: "From PKR 8,600,000 – 10,200,000 (replace with your actual)",
+        image: "https://commons.wikimedia.org/wiki/Special:FilePath/Honda%20Civic%20XI%20IMG002.jpg?width=1200",
+        meta: ["Sedan", "Honda", "Turbo"]
+      },
+      {
+        id: "sportage",
+        name: "KIA Sportage (5th Gen)",
+        priceText: "From PKR 8,100,000 – 10,500,000 (replace with your actual)",
+        image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kia%20Sportage%20(NQ5;%202021).jpg?width=1200",
+        meta: ["SUV", "KIA", "Panoramic"]
+      },
+      {
+        id: "tucson",
+        name: "Hyundai Tucson (NX4)",
+        priceText: "From PKR 7,900,000 – 9,900,000 (replace with your actual)",
+        image: "https://commons.wikimedia.org/wiki/Special:FilePath/Hyundai%20Tucson%20(NX4)%201X7A0424.jpg?width=1200",
+        meta: ["SUV", "Hyundai", "Comfort"]
+      }
+    ];
+
+    const carSelect = document.getElementById("carSelect");
+    const carImage  = document.getElementById("carImage");
+    const carName   = document.getElementById("carName");
+    const carPrice  = document.getElementById("carPrice");
+    const carMeta   = document.getElementById("carMeta");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const btnSearch = document.getElementById("btnSearch");
+    const btnBookTestDrive = document.getElementById("btnBookTestDrive");
+    const btnServiceBooking = document.getElementById("btnServiceBooking");
+
+    const testDriveForm = document.getElementById("testDriveForm");
+    const selectedModel = document.getElementById("selectedModel");
+    const priceShown    = document.getElementById("priceShown");
+
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalText = document.getElementById("modalText");
+    const modalClose = document.getElementById("modalClose");
+
+    const yearEl = document.getElementById("year");
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    let currentIndex = 0;
+
+    const clampIndex = (i) => {
+      const n = cars.length;
+      return (i % n + n) % n;
+    };
+
+    const renderSelectOptions = () => {
+      carSelect.innerHTML = "";
+      cars.forEach((c, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = c.name;
+        carSelect.appendChild(opt);
+      });
+    };
+
+    const renderCar = (index) => {
+      currentIndex = clampIndex(index);
+      const car = cars[currentIndex];
+
+      carSelect.value = String(currentIndex);
+      carName.textContent = car.name;
+      carPrice.textContent = car.priceText;
+
+      selectedModel.value = car.name;
+      priceShown.value = car.priceText;
+
+      carMeta.innerHTML = "";
+      (car.meta || []).forEach(tag => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = tag;
+        carMeta.appendChild(chip);
+      });
+
+      carImage.src = car.image;
+
+      carImage.onerror = () => {
+        const svg = encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="960" height="420">
+            <defs>
+              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="rgba(37,99,235,0.25)"/>
+                <stop offset="1" stop-color="rgba(2,6,23,0.04)"/>
+              </linearGradient>
+            </defs>
+            <rect width="100%" height="100%" rx="22" fill="url(#g)"/>
+            <text x="50%" y="48%" dominant-baseline="middle" text-anchor="middle"
+              font-family="Arial" font-size="28" fill="rgba(2,6,23,0.65)">
+              Car image not found
+            </text>
+            <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle"
+              font-family="Arial" font-size="18" fill="rgba(2,6,23,0.55)">
+              Use a valid image URL or local assets/cars/
+            </text>
+          </svg>
+        `);
+        carImage.src = "data:image/svg+xml;charset=utf-8," + svg;
+        carImage.onerror = null;
+      };
+    };
+
+    const openModal = (message) => {
+      modalText.textContent = message;
+      modalBackdrop.style.display = "flex";
+    };
+    const closeModal = () => { modalBackdrop.style.display = "none"; };
+
+    const smoothScrollTo = (hash) => {
+      const el = document.querySelector(hash);
+      if(!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    // ✅ Robust navigation (Service Booking)
+    const goToFirstExisting = async (paths) => {
+      if (!Array.isArray(paths) || !paths.length) return;
+
+      // file:// mode -> just open first
+      if (window.location.protocol === "file:") {
+        window.location.href = paths[0];
+        return;
+      }
+
+      // http(s) mode -> try HEAD
+      for (const p of paths) {
+        try {
+          const res = await fetch(p, { method: "HEAD", cache: "no-store" });
+          if (res.ok) {
+            window.location.href = p;
+            return;
+          }
+        } catch (e) {}
+      }
+
+      window.location.href = paths[0];
+    };
+
+    const wireNav = (el, paths) => {
+      if (!el) return;
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        goToFirstExisting(paths);
+      });
+    };
+
+    // Init
+    renderSelectOptions();
+    renderCar(0);
+
+    // Default date
+    (function setDefaultDate(){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      const dateEl = document.getElementById("date");
+      if(dateEl && !dateEl.value) dateEl.value = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    // Events
+    prevBtn.addEventListener("click", () => renderCar(currentIndex - 1));
+    nextBtn.addEventListener("click", () => renderCar(currentIndex + 1));
+    carSelect.addEventListener("change", (e) => {
+      const idx = Number(e.target.value);
+      renderCar(Number.isFinite(idx) ? idx : 0);
+    });
+
+    btnSearch.addEventListener("click", () => {
+      const q = prompt("Search vehicles (demo): Enter model/brand");
+      if(!q) return;
+      const idx = cars.findIndex(c => c.name.toLowerCase().includes(q.toLowerCase()));
+      if(idx >= 0){
+        renderCar(idx);
+        smoothScrollTo("#testdrive");
+      }else{
+        alert("No matching model found in demo list. Add your inventory in cars[] array.");
+      }
+    });
+
+    btnBookTestDrive.addEventListener("click", () => {
+      smoothScrollTo("#testdrive");
+      document.getElementById("fullName").focus();
+    });
+
+    // ✅ Service booking button functional with fallbacks
+    wireNav(btnServiceBooking, [
+      "service-booking.html",
+      "service.html",
+      "service-booking.htm"
+    ]);
+
+    // Navbar smooth scroll
+    document.querySelectorAll("[data-scroll]").forEach(a => {
+      a.addEventListener("click", (e) => {
+        const href = a.getAttribute("href") || "";
+        if(href.startsWith("#")){
+          e.preventDefault();
+          smoothScrollTo(href);
+        }
+      });
+    });
+
+    // Form submit
+    testDriveForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(testDriveForm);
+      const booking = Object.fromEntries(formData.entries());
+      booking.createdAt = new Date().toISOString();
+      booking.carId = cars[currentIndex].id;
+
+      const key = "carshowroom_testdrive_bookings";
+      const prev = JSON.parse(localStorage.getItem(key) || "[]");
+      prev.push(booking);
+      localStorage.setItem(key, JSON.stringify(prev));
+
+      openModal(`Thanks ${booking.fullName}! Your test drive request for "${booking.selectedModel}" has been saved (demo). We will contact you via ${booking.contactMode}.`);
+      testDriveForm.reset();
+      renderCar(currentIndex);
+    });
+
+    modalClose.addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (e) => { if(e.target === modalBackdrop) closeModal(); });
+    document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+  </script>
+</body>
+</html>

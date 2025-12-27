@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Dashboard | CarShowroom</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#2563eb;
+      --brand2:#7c3aed;
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:rgba(15, 23, 42, .08);
+      --shadow: 0 12px 30px rgba(2, 6, 23, .08);
+      --shadow2: 0 16px 40px rgba(2, 6, 23, .12);
+      --navBg: rgba(255,255,255,.82);
+      --glass: blur(12px);
+      --footerBg: #0b1220;
+      --footerText: rgba(255,255,255,.78);
+      --footerMuted: rgba(255,255,255,.55);
+      --ring: 0 0 0 .25rem rgba(37,99,235,.18);
+    }
+
+    body{ background: var(--bg); color:var(--text); }
+
+    /* =======================
+       NAVBAR
+    ======================= */
+    .navbar{
+      background: var(--navBg);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(2,6,23,.06);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+    .navbar::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--brand), var(--brand2));
+    }
+
+    .brand-badge{
+      width:42px; height:42px; border-radius:14px;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      display:grid; place-items:center; color:#fff;
+      box-shadow: var(--shadow2);
+      font-weight:800;
+      letter-spacing: .5px;
+    }
+
+    .navbar-brand small{ opacity:.75; }
+
+    .nav-link{
+      color: #0f172a !important;
+      font-weight: 600;
+      border-radius: 12px;
+      padding: 10px 12px;
+      transition: all .2s ease;
+      position: relative;
+    }
+    .nav-link:hover{
+      background: rgba(37,99,235,.08);
+      color: var(--brand) !important;
+      transform: translateY(-1px);
+    }
+    .nav-link.active{
+      background: linear-gradient(135deg, rgba(37,99,235,.14), rgba(124,58,237,.14));
+      color: var(--brand) !important;
+      border: 1px solid rgba(37,99,235,.18);
+      box-shadow: 0 10px 22px rgba(37,99,235,.10);
+    }
+
+    .nav-cta{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-left: 8px;
+    }
+
+    .btn-soft{
+      background: rgba(37,99,235,.10);
+      border: 1px solid rgba(37,99,235,.22);
+      color: var(--brand);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 700;
+      transition: all .2s ease;
+    }
+    .btn-soft:hover{
+      background: rgba(37,99,235,.16);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(37,99,235,.12);
+    }
+    .btn-soft:focus{ box-shadow: var(--ring); }
+
+    .navbar-toggler{
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 14px;
+      padding: 8px 10px;
+    }
+    .navbar-toggler:focus{ box-shadow: var(--ring); }
+
+    /* Hero */
+    .hero{
+      border-radius: 24px;
+      background:
+        radial-gradient(1200px 400px at 10% -10%, rgba(37,99,235,.35), transparent 55%),
+        radial-gradient(1200px 400px at 90% -10%, rgba(124,58,237,.35), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.8), rgba(255,255,255,.55));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .hero .title{ font-size: clamp(28px, 3.4vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
+    .hero .sub{ color:var(--muted); }
+
+    /* Cards */
+    .cardx{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+    .stat{
+      display:flex; gap:14px; align-items:center;
+      padding:18px 18px;
+    }
+    .stat .ic{
+      width:44px; height:44px; border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(37,99,235,.10);
+      border: 1px solid rgba(37,99,235,.15);
+      color: var(--brand);
+      font-size: 20px;
+    }
+    .stat .k{ color:var(--muted); font-size: 14px; }
+    .stat .v{ font-size: 28px; font-weight: 800; line-height: 1; }
+
+    .module{
+      padding:18px;
+      height:100%;
+    }
+    .module .top{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+      margin-bottom: 8px;
+    }
+    .module .m-title{ font-size: 18px; font-weight: 800; margin: 0; }
+    .module .m-desc{ margin: 0; color: var(--muted); }
+    .module .m-ic{
+      width:44px; height:44px; border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(124,58,237,.10);
+      border: 1px solid rgba(124,58,237,.16);
+      color: var(--brand2);
+      font-size: 20px;
+    }
+    .module .actions{ margin-top: 14px; display:flex; gap:10px; flex-wrap: wrap; }
+    .btn-wide{ min-width: 150px; border-radius: 14px; padding: 10px 14px; }
+    .btn-primary{ border-radius: 14px; }
+    .btn-outline-primary{ border-radius: 14px; }
+    .btn-warning{ border-radius: 14px; }
+    .btn-outline-dark{ border-radius: 14px; }
+
+    .chip{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.04);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* =======================
+       FOOTER (FULL WIDTH FIX)
+    ======================= */
+    footer{
+      width: 100%;
+      margin-top: 26px;
+      position: relative;
+      background: var(--footerBg);
+      color: var(--footerText);
+      padding: 22px 0;
+      border-top: 1px solid rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+    footer::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--brand), var(--brand2));
+      opacity: .95;
+    }
+    footer::after{
+      content:"";
+      position:absolute;
+      inset: -120px -40px auto -40px;
+      height: 220px;
+      background:
+        radial-gradient(closest-side at 20% 40%, rgba(37,99,235,.35), transparent 60%),
+        radial-gradient(closest-side at 80% 30%, rgba(124,58,237,.30), transparent 60%);
+      pointer-events:none;
+      filter: blur(10px);
+      opacity: .9;
+    }
+    .footer-inner{ position: relative; z-index: 1; }
+    .footer-brand{ display:flex; align-items:center; gap:12px; }
+    .footer-badge{
+      width:38px; height:38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      display:grid; place-items:center;
+      color:#fff; font-weight:800;
+      box-shadow: 0 12px 28px rgba(0,0,0,.25);
+    }
+    .footer-links a{
+      color: var(--footerMuted);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 12px;
+      transition: all .2s ease;
+    }
+    .footer-links a:hover{
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      transform: translateY(-1px);
+    }
+    .footer-note{
+      color: rgba(255,255,255,.55);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container py-2 position-relative">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.html">
+        <span class="brand-badge">CR</span>
+        <div class="d-flex flex-column lh-1">
+          <span class="fw-bold">CarShowroom</span>
+          <small class="text-secondary">Customer Panel</small>
+        </div>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 mt-3 mt-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" href="dashboard.html">
+              <i class="bi bi-grid-1x2 me-1"></i> Dashboard
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="inventory.html">
+              <i class="bi bi-car-front me-1"></i> Browse Cars
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="car.details.html">
+              <i class="bi bi-collection me-1"></i> My Cars
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="bookings.html">
+              <i class="bi bi-calendar-check me-1"></i> Bookings
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="my-profile.html">
+              <i class="bi bi-person-circle me-1"></i> Profile
+            </a>
+          </li>
+
+          <li class="nav-item nav-cta">
+            <button class="btn btn-soft btn-sm" id="btnLogout" type="button">
+              <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+
+    <!-- HERO -->
+    <section class="hero p-4 p-lg-5 mb-4">
+      <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+          <div class="chip d-inline-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-shield-check"></i>
+            Secure Customer Dashboard
+          </div>
+          <h1 class="title mb-2">Dashboard</h1>
+          <p class="sub mb-0" id="welcomeLine">Welcome!</p>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap align-items-start">
+          <a href="inventory.html" class="btn btn-primary btn-wide">
+            <i class="bi bi-search me-1"></i> Find a Car
+          </a>
+          <a href="bookings.html" class="btn btn-outline-primary btn-wide">
+            <i class="bi bi-calendar-week me-1"></i> My Bookings
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <div class="cardx stat">
+          <div class="ic"><i class="bi bi-calendar-check"></i></div>
+          <div>
+            <div class="k">Active Bookings</div>
+            <div class="v" id="statBookings">0</div>
+            <div class="k">Your current bookings</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="cardx stat">
+          <div class="ic"><i class="bi bi-receipt"></i></div>
+          <div>
+            <div class="k">Pending Payments</div>
+            <div class="v" id="statPayments">0</div>
+            <div class="k">Unpaid / pending invoices</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="cardx stat">
+          <div class="ic"><i class="bi bi-heart"></i></div>
+          <div>
+            <div class="k">Saved Cars</div>
+            <div class="v" id="statSaved">0</div>
+            <div class="k">Wishlist / added cars</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULES -->
+    <section class="row g-3">
+
+      <!-- 1) MY CARS -->
+      <div class="col-lg-4">
+        <div class="cardx module">
+          <div class="top">
+            <div>
+              <h3 class="m-title">My Cars</h3>
+              <p class="m-desc">View your saved cars & details</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-collection"></i></div>
+          </div>
+          <div class="actions">
+            <a href="car.details.html" id="btnMyCarsOpen" class="btn btn-primary btn-wide">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Open
+            </a>
+
+            <a href="finance-emi.html" class="btn btn-warning btn-wide">
+              <i class="bi bi-calculator me-1"></i> Calculate EMI
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2) BROWSE CARS -->
+      <div class="col-lg-4">
+        <div class="cardx module">
+          <div class="top">
+            <div>
+              <h3 class="m-title">Browse Cars</h3>
+              <p class="m-desc">Explore available cars & offers</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-car-front"></i></div>
+          </div>
+          <div class="actions">
+            <a href="inventory.html" class="btn btn-outline-primary btn-wide">
+              <i class="bi bi-search me-1"></i> Browse
+            </a>
+            <a href="offers.html" class="btn btn-outline-dark btn-wide">
+              <i class="bi bi-tags me-1"></i> Offers
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3) BOOKINGS -->
+      <div class="col-lg-4">
+        <div class="cardx module">
+          <div class="top">
+            <div>
+              <h3 class="m-title">Bookings</h3>
+              <p class="m-desc">Appointments / booking history</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-calendar2-week"></i></div>
+          </div>
+          <div class="actions">
+            <a href="bookings.html" class="btn btn-outline-primary btn-wide">
+              <i class="bi bi-eye me-1"></i> View
+            </a>
+            <a href="inventory.html" class="btn btn-primary btn-wide">
+              <i class="bi bi-plus-circle me-1"></i> New Booking
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4) INQUIRIES -->
+      <div class="col-lg-4">
+        <div class="cardx module">
+          <div class="top">
+            <div>
+              <h3 class="m-title">Inquiries</h3>
+              <p class="m-desc">Your questions & requests</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-chat-dots"></i></div>
+          </div>
+          <div class="actions">
+            <a href="inquiries.html" id="btnInquiriesOpen" class="btn btn-outline-primary btn-wide">
+              <i class="bi bi-inbox me-1"></i> Open
+            </a>
+          </div>
+          <p class="m-desc mt-3 mb-0">
+            Total inquiries: <b id="statInquiriesInline">0</b>
+          </p>
+        </div>
+      </div>
+
+      <!-- ✅ NEW MODULE: TEST DRIVE (replacing support.html) -->
+      <div class="col-lg-4">
+        <div class="cardx module">
+          <div class="top">
+            <div>
+              <h3 class="m-title">Test Drive</h3>
+              <p class="m-desc">Book a test drive slot</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-steering-wheel"></i></div>
+          </div>
+          <div class="actions">
+            <a href="test-drive.html" id="btnTestDrive" class="btn btn-primary btn-wide">
+              <i class="bi bi-calendar-plus me-1"></i> Book Now
+            </a>
+            <a href="service-booking.html" class="btn btn-outline-primary btn-wide">
+              <i class="bi bi-tools me-1"></i> Service Booking
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6) PROFILE -->
+      <div class="col-lg-4">
+        <div class="cardx module">
+          <div class="top">
+            <div>
+              <h3 class="m-title">Profile</h3>
+              <p class="m-desc">Account settings & info</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-person-gear"></i></div>
+          </div>
+          <div class="actions">
+            <a href="my-profile.html" class="btn btn-outline-primary btn-wide">
+              <i class="bi bi-sliders me-1"></i> Manage
+            </a>
+            <a href="privacy.html" class="btn btn-outline-dark btn-wide">
+              <i class="bi bi-lock me-1"></i> Privacy
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- FOOTER (full width) -->
+  <footer>
+    <div class="container footer-inner">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+        <div>
+          <div class="footer-brand">
+            <div class="footer-badge">CR</div>
+            <div class="lh-1">
+              <div class="fw-bold">CarShowroom — Customer Panel</div>
+              <div class="footer-note">Modern car showroom management experience</div>
+            </div>
+          </div>
+          <div class="mt-2 footer-note">
+            © <span id="year"></span> All rights reserved.
+          </div>
+        </div>
+
+        <div class="footer-links d-flex flex-wrap gap-2 justify-content-md-end">
+          <a href="terms.html"><i class="bi bi-file-earmark-text me-1"></i>Terms</a>
+          <a href="privacy.html"><i class="bi bi-shield-lock me-1"></i>Privacy</a>
+          <a href="contact.html"><i class="bi bi-life-preserver me-1"></i>Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Your page JS -->
+  <script src="../assets/js/storage.js"></script>
+  <script src="../assets/js/customer-auth.js"></script>
+  <script src="../assets/js/pages/dashboard.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // ---------- helpers ----------
+      const safeParse = (key, fallback) => {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (e) {
+          return fallback;
+        }
+      };
+
+      const goToFirstExisting = async (paths) => {
+        if (!Array.isArray(paths) || !paths.length) return;
+
+        if (window.location.protocol === "file:") {
+          window.location.href = paths[0];
+          return;
+        }
+
+        for (const p of paths) {
+          try {
+            const res = await fetch(p, { method: "HEAD", cache: "no-store" });
+            if (res.ok) {
+              window.location.href = p;
+              return;
+            }
+          } catch (e) {}
+        }
+
+        window.location.href = paths[0];
+      };
+
+      const wireNav = (id, paths) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          goToFirstExisting(paths);
+        });
+      };
+
+      // ---------- Welcome line ----------
+      const customer = safeParse("customerData", {});
+      const welcomeEl = document.getElementById("welcomeLine");
+      if (welcomeEl) {
+        welcomeEl.textContent = customer?.name ? `Welcome, ${customer.name}` : "Welcome!";
+      }
+
+      // ---------- Counts ----------
+      const csCars = safeParse("cs_cars", []);
+      const cartItems = safeParse("cartItems", []);
+      const savedCarsCount =
+        (Array.isArray(csCars) && csCars.length) ? csCars.length :
+        (Array.isArray(cartItems) ? cartItems.length : 0);
+
+      const statSaved = document.getElementById("statSaved");
+      if (statSaved) statSaved.textContent = savedCarsCount;
+
+      const inquiries = safeParse("cs_inquiries", []);
+      const inquiriesCount = Array.isArray(inquiries) ? inquiries.length : 0;
+      const statInq = document.getElementById("statInquiriesInline");
+      if (statInq) statInq.textContent = inquiriesCount;
+
+      const bookings = safeParse("cs_bookings", []);
+      const statBookings = document.getElementById("statBookings");
+      if (statBookings) statBookings.textContent = Array.isArray(bookings) ? bookings.length : 0;
+
+      const payments = safeParse("cs_payments", []);
+      let pending = 0;
+      if (Array.isArray(payments)) {
+        pending = payments.filter(p => (p?.status || "").toLowerCase() !== "paid").length;
+      }
+      const statPayments = document.getElementById("statPayments");
+      if (statPayments) statPayments.textContent = pending;
+
+      // ---------- Footer year ----------
+      const yearEl = document.getElementById("year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // ---------- Logout ----------
+      const btnLogout = document.getElementById("btnLogout");
+      if (btnLogout) {
+        btnLogout.addEventListener("click", () => {
+          localStorage.removeItem("customerData");
+          window.location.href = "login.html";
+        });
+      }
+
+      // ---------- Robust buttons ----------
+      wireNav("btnMyCarsOpen", ["car.details.html","car-details.html","my-cars.html"]);
+      wireNav("btnInquiriesOpen", ["inquiries.html","inquiry.html","customer-inquiries.html"]);
+      wireNav("btnTestDrive", ["test-drive.html","testdrive.html"]);
+    });
+  </script>
+
+</body>
+</html>

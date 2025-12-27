@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cars | CarShowroom</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body{ background:#0b1115; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .wrap{ width:min(1200px, 92vw); margin: 24px auto; }
+
+    .topbar{
+      background:#fff; border-radius:18px;
+      box-shadow:0 18px 55px rgba(0,0,0,0.35);
+      padding:16px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+    }
+    .title{ margin:0; font-weight:950; }
+    .sub{ margin:4px 0 0; color: rgba(0,0,0,.6); font-weight:700; }
+
+    .cardx{
+      background:#fff; border-radius:18px;
+      box-shadow:0 18px 55px rgba(0,0,0,0.35);
+      padding:16px; margin-top:14px;
+    }
+
+    .car-card{
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 16px 40px rgba(0,0,0,0.18);
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: transform .15s ease;
+    }
+    .car-card:hover{ transform: translateY(-2px); }
+
+    .car-img{
+      height: 170px;
+      object-fit: cover;
+      width: 100%;
+      background: #e9ecef;
+    }
+
+    .badge-soft{
+      background: rgba(11,36,49,.08);
+      color:#0b2431;
+      font-weight:900;
+      padding:8px 12px;
+      border-radius: 999px;
+      display:inline-block;
+    }
+
+    .btn-darkx{
+      background:#1f2328; color:#fff; border:none;
+      padding:10px 14px; border-radius: 12px; font-weight:900;
+    }
+    .btn-darkx:hover{ opacity:.95; }
+    .btn-outlinex{
+      background:#fff; color:#1f2328; border:2px solid rgba(0,0,0,.18);
+      padding:10px 14px; border-radius: 12px; font-weight:900; text-decoration:none;
+      display:inline-block;
+    }
+    .btn-dangerx{
+      background:#dc3545; color:#fff; border:none;
+      padding:10px 14px; border-radius: 12px; font-weight:900;
+    }
+    .btn-dangerx:hover{ opacity:.95; }
+
+    .small-muted{ font-size: 12px; color: rgba(0,0,0,.55); font-weight:800; }
+    .price{ font-weight:950; font-size: 18px; }
+
+    /* Cart drawer */
+    .drawer{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: min(420px, 92vw);
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 18px 55px rgba(0,0,0,0.35);
+      overflow:hidden;
+      display:none;
+      z-index: 9999;
+    }
+    .drawer.show{ display:block; }
+    .drawer-head{
+      padding:14px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      border-bottom:1px solid rgba(0,0,0,.08);
+    }
+    .drawer-body{ padding: 14px; max-height: 55vh; overflow:auto; }
+    .drawer-foot{ padding: 14px; border-top:1px solid rgba(0,0,0,.08); }
+
+    .qty-btn{
+      border:1px solid rgba(0,0,0,.2);
+      background:#fff;
+      width:34px; height:34px;
+      border-radius:10px;
+      font-weight:900;
+    }
+    .qty{
+      min-width:38px;
+      text-align:center;
+      font-weight:900;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ✅ GUARD: direct URL block + customer only -->
+<script>
+  function getSession(){
+    try { return JSON.parse(localStorage.getItem("session") || "null"); }
+    catch(e){ return null; }
+  }
+  (function guardCarsPage(){
+    const s = getSession();
+    // allow ONLY logged-in customers
+    if(!s || s.loggedIn !== true || s.role !== "customer"){
+      // optional: remember where user wanted to go
+      localStorage.setItem("redirectAfterLogin", "../pages/cars.html");
+      window.location.replace("../customer/login.html");
+    }
+  })();
+</script>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <h2 class="title">Cars</h2>
+      <p class="sub">Only logged-in customers can view this page</p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap align-items-center">
+      <a class="btn-outlinex" href="../index.html">Home</a>
+      <button class="btn-outlinex" id="logoutBtn" type="button">Logout</button>
+      <button class="btn-darkx" id="openCartBtn" type="button">
+        Cart <span class="badge-soft ms-2" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="cardx">
+    <div class="row g-3" id="carsGrid"></div>
+  </div>
+
+</div>
+
+<!-- Cart Drawer -->
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <div>
+      <div style="font-weight:950;">Your Cart</div>
+      <div class="small-muted">Checkout will create an order (saved in localStorage → admin dashboard)</div>
+    </div>
+    <button class="btn btn-sm btn-light" id="closeCartBtn" style="border-radius:12px; font-weight:900;">Close</button>
+  </div>
+
+  <div class="drawer-body">
+    <div id="cartItems"></div>
+
+    <hr>
+
+    <div class="row g-2">
+      <div class="col-12">
+        <label class="small-muted">Customer Name</label>
+        <input class="form-control" id="custName" placeholder="e.g. Ali Khan" style="border-radius:12px;">
+      </div>
+      <div class="col-12">
+        <label class="small-muted">Customer Email</label>
+        <input class="form-control" id="custEmail" placeholder="e.g. ali@gmail.com" style="border-radius:12px;">
+        <div class="small-muted mt-1">Email must be like: name@domain.com</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-foot">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <div class="small-muted">Total</div>
+        <div class="price" id="cartTotal">PKR 0</div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn-outlinex" id="clearCartBtn" type="button" style="padding:10px 12px;">Clear</button>
+        <button class="btn-darkx" id="placeOrderBtn" type="button">Place Order</button>
+      </div>
+    </div>
+    <div class="small-muted mt-2" id="hint"></div>
+  </div>
+</div>
+
+<script>
+  /* ===============================
+     Cars Data (duplicates removed)
+     =============================== */
+  const CARS = [
+    { id: "c1", name: "Toyota Corolla", price: 5200000, img: "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1400&q=60" },
+    { id: "c2", name: "Honda Civic", price: 7200000, img: "https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=1400&q=60" },
+    { id: "c3", name: "Suzuki Swift", price: 4300000, img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=60" },
+    { id: "c4", name: "KIA Sportage", price: 9800000, img: "https://images.unsplash.com/photo-1621993202323-f438eec934ff?auto=format&fit=crop&w=1400&q=60" },
+  ];
+
+  /* ===============================
+     Session helpers
+     =============================== */
+  function getSession(){
+    try { return JSON.parse(localStorage.getItem("session") || "null"); }
+    catch(e){ return null; }
+  }
+  function clearSession(){
+    localStorage.removeItem("session");
+  }
+
+  /* ===============================
+     Cart (localStorage)
+     =============================== */
+  const CART_KEY = "cartItems";
+  function getCart(){ return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
+  function setCart(items){ localStorage.setItem(CART_KEY, JSON.stringify(items)); }
+
+  function money(p){ return "PKR " + Number(p).toLocaleString(); }
+  function todayKey(d = new Date()){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+  function makeOrderId(){
+    return "ORD-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random()*900+100);
+  }
+
+  /* ===============================
+     ✅ Orders Storage (admin dashboard reads: localStorage("orders"))
+     =============================== */
+  function getOrders(){ return JSON.parse(localStorage.getItem("orders") || "[]"); }
+  function setOrders(o){ localStorage.setItem("orders", JSON.stringify(o)); }
+
+  /* ===============================
+     UI Render: Cars
+     =============================== */
+  function renderCars(){
+    const grid = document.getElementById("carsGrid");
+    grid.innerHTML = CARS.map(car => `
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="car-card bg-white">
+          <img class="car-img" src="${car.img}" alt="${car.name}">
+          <div class="p-3">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <div style="font-weight:950;">${car.name}</div>
+                <div class="small-muted">Premium condition • Automatic</div>
+              </div>
+              <span class="badge-soft">${money(car.price)}</span>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn-darkx w-100" onclick="addToCart('${car.id}')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  /* ===============================
+     Cart Actions
+     =============================== */
+  function addToCart(carId){
+    const car = CARS.find(c => c.id === carId);
+    if(!car) return;
+
+    const cart = getCart();
+    const found = cart.find(i => i.id === carId);
+    if(found) found.qty += 1;
+    else cart.push({ id: car.id, name: car.name, price: car.price, qty: 1 });
+
+    setCart(cart);
+    openCart();
+    renderCart();
+  }
+
+  function incQty(id){
+    const cart = getCart();
+    const item = cart.find(i => i.id === id);
+    if(item){ item.qty += 1; setCart(cart); renderCart(); }
+  }
+  function decQty(id){
+    const cart = getCart();
+    const item = cart.find(i => i.id === id);
+    if(item){
+      item.qty -= 1;
+      if(item.qty <= 0){
+        const idx = cart.findIndex(i => i.id === id);
+        cart.splice(idx,1);
+      }
+      setCart(cart);
+      renderCart();
+    }
+  }
+  function removeItem(id){
+    const cart = getCart().filter(i => i.id !== id);
+    setCart(cart);
+    renderCart();
+  }
+  function clearCart(){
+    setCart([]);
+    renderCart();
+  }
+
+  function calcTotal(cart){
+    return cart.reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
+  }
+
+  function renderCart(){
+    const cart = getCart();
+    document.getElementById("cartCount").textContent = cart.reduce((s,i)=>s+i.qty,0);
+
+    const wrap = document.getElementById("cartItems");
+    if(!cart.length){
+      wrap.innerHTML = `<div class="text-center text-muted fw-bold">Cart is empty.</div>`;
+      document.getElementById("cartTotal").textContent = money(0);
+      document.getElementById("hint").textContent = "Add cars to cart, then place order.";
+      return;
+    }
+
+    wrap.innerHTML = cart.map(i => `
+      <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+        <div style="min-width:0;">
+          <div style="font-weight:950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i.name}</div>
+          <div class="small-muted">${money(i.price)} • Subtotal: ${money(i.price*i.qty)}</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <button class="qty-btn" onclick="decQty('${i.id}')">-</button>
+          <div class="qty">${i.qty}</div>
+          <button class="qty-btn" onclick="incQty('${i.id}')">+</button>
+          <button class="btn btn-sm btn-light" onclick="removeItem('${i.id}')" style="border-radius:10px; font-weight:900;">x</button>
+        </div>
+      </div>
+    `).join("");
+
+    const total = calcTotal(cart);
+    document.getElementById("cartTotal").textContent = money(total);
+    document.getElementById("hint").textContent = "Place Order se data admin dashboard me show ho jayega.";
+  }
+
+  /* ===============================
+     Email validation (must contain @ + domain)
+     =============================== */
+  function isValidEmail(email){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email || "").trim());
+  }
+
+  /* ===============================
+     Place Order → Save to localStorage("orders")
+     =============================== */
+  function placeOrder(){
+    const cart = getCart();
+    if(!cart.length){
+      alert("Cart is empty!");
+      return;
+    }
+
+    const customerName = document.getElementById("custName").value.trim();
+    const customerEmail = document.getElementById("custEmail").value.trim();
+
+    if(!customerName){
+      alert("Customer name required!");
+      return;
+    }
+    if(!isValidEmail(customerEmail)){
+      alert("Please enter a valid email (e.g. ali@gmail.com).");
+      return;
+    }
+
+    const order = {
+      orderId: makeOrderId(),
+      createdAtISO: new Date().toISOString(),
+      dateKey: todayKey(new Date()),
+      customerName,
+      customerEmail,
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+      total: calcTotal(cart)
+    };
+
+    const orders = getOrders();
+    orders.unshift(order); // newest first
+    setOrders(orders);
+
+    // clear cart after order
+    clearCart();
+    document.getElementById("custName").value = "";
+    document.getElementById("custEmail").value = "";
+
+    alert("Order placed ✅ Admin dashboard me show ho jayega!");
+    renderCart();
+  }
+
+  /* ===============================
+     Drawer controls
+     =============================== */
+  const drawer = document.getElementById("cartDrawer");
+  function openCart(){ drawer.classList.add("show"); }
+  function closeCart(){ drawer.classList.remove("show"); }
+
+  document.getElementById("openCartBtn").addEventListener("click", () => { openCart(); renderCart(); });
+  document.getElementById("closeCartBtn").addEventListener("click", closeCart);
+  document.getElementById("clearCartBtn").addEventListener("click", () => { if(confirm("Clear cart?")) clearCart(); });
+  document.getElementById("placeOrderBtn").addEventListener("click", placeOrder);
+
+  /* ===============================
+     Logout
+     =============================== */
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    if(confirm("Logout?")){
+      clearSession();
+      // optional: also clear cart if you want
+      // localStorage.removeItem("cartItems");
+      window.location.href = "../customer/login.html";
+    }
+  });
+
+  /* ===============================
+     Init (prefill email from session)
+     =============================== */
+  (function init(){
+    const s = getSession();
+    if(s && s.role === "customer" && s.email){
+      document.getElementById("custEmail").value = s.email;
+    }
+    renderCars();
+    renderCart();
+  })();
+</script>
+
+</body>
+</html>
+
+

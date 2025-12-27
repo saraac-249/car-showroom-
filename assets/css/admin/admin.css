@@ -1,0 +1,92 @@
+:root{
+  --bg1:#070b10;
+  --bg2:#0b1220;
+  --card:#0f172a;
+  --card2:#111c34;
+  --border:rgba(255,255,255,.08);
+  --text:#e5e7eb;
+  --muted:rgba(229,231,235,.7);
+  --brand:#f4b400;
+  --brand2:#ffcc33;
+}
+
+html,body{height:100%}
+body{
+  background: radial-gradient(1200px 600px at 20% 15%, rgba(244,180,0,.16), transparent 55%),
+              radial-gradient(1000px 600px at 80% 20%, rgba(99,102,241,.18), transparent 55%),
+              linear-gradient(180deg, var(--bg1), var(--bg2));
+  color:var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+a{color:inherit;text-decoration:none}
+.container-max{max-width:1200px}
+
+.glass{
+  background: linear-gradient(180deg, rgba(17,24,39,.72), rgba(17,24,39,.45));
+  border:1px solid var(--border);
+  box-shadow: 0 20px 80px rgba(0,0,0,.45);
+  border-radius:18px;
+  backdrop-filter: blur(10px);
+}
+
+.topbar{
+  border-bottom:1px solid var(--border);
+  background: rgba(5,10,18,.55);
+  backdrop-filter: blur(10px);
+}
+
+.brand-badge{
+  width:38px;height:38px;border-radius:12px;
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color:#111;
+  display:grid;place-items:center;
+  font-weight:900;
+}
+
+.sidebar{
+  min-height: calc(100vh - 72px);
+  border-right:1px solid var(--border);
+}
+
+.sidebar .nav-link{
+  color:var(--muted);
+  border-radius:12px;
+  padding:.7rem .9rem;
+  display:flex;gap:.6rem;align-items:center;
+}
+.sidebar .nav-link:hover{background:rgba(255,255,255,.05); color:var(--text)}
+.sidebar .nav-link.active{
+  background: rgba(244,180,0,.12);
+  color: var(--text);
+  border:1px solid rgba(244,180,0,.22);
+}
+
+.cardx{
+  background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(17,24,39,.7));
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow: 0 14px 55px rgba(0,0,0,.35);
+}
+
+.btn-brand{
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  border:none;color:#111;font-weight:800;
+}
+.btn-brand:hover{filter:brightness(1.05)}
+.badge-soft{
+  background: rgba(244,180,0,.12);
+  border:1px solid rgba(244,180,0,.22);
+  color: var(--text);
+}
+
+.table-darkish{
+  --bs-table-bg: rgba(15,23,42,.55);
+  --bs-table-border-color: var(--border);
+  --bs-table-color: var(--text);
+}
+
+.footer{
+  border-top:1px solid var(--border);
+  color: var(--muted);
+}

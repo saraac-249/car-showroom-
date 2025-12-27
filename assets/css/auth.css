@@ -1,0 +1,26 @@
+body{
+  background: radial-gradient(1200px 600px at 20% 0%, #132654 0%, rgba(19,38,84,0) 70%),
+              radial-gradient(900px 500px at 80% 10%, #2a165f 0%, rgba(42,22,95,0) 70%),
+              #0b1220;
+  color: #eaf0ff;
+  min-height: 100vh;
+}
+.auth-card{
+  background: rgba(15,27,51,.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+}
+.form-control{
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  color: #eaf0ff;
+}
+.form-control:focus{
+  box-shadow: 0 0 0 .2rem rgba(79,140,255,.25);
+  border-color: rgba(79,140,255,.35);
+}
+.btn-brand{
+  background: linear-gradient(135deg, #4f8cff, #8f62ff);
+  border: none;
+}
