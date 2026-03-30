@@ -6,13 +6,12 @@
   <title>Customers | Admin</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
+
 <body>
   <main class="container py-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h3 class="mb-0">Customers</h3>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
-        Add Customer
-      </button>
+      <!-- ✅ Add Customer button removed -->
     </div>
 
     <div class="table-responsive">
@@ -22,6 +21,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>City</th>
             <th>Created</th>
             <th class="text-end">Action</th>
           </tr>
@@ -33,41 +33,243 @@
     <div id="emptyState" class="text-center text-muted py-5 d-none">
       No customers found.
     </div>
-
-    <!-- Add customer modal (optional) -->
-    <div class="modal fade" id="addCustomerModal" tabindex="-1">
-      <div class="modal-dialog">
-        <form class="modal-content" id="customerForm">
-          <div class="modal-header">
-            <h5 class="modal-title">Add Customer</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-2">
-              <label class="form-label">Name</label>
-              <input class="form-control" name="name" required>
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Email</label>
-              <input class="form-control" name="email" type="email" required>
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Phone</label>
-              <input class="form-control" name="phone">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button>
-            <button class="btn btn-primary" type="submit">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../assets/js/admin-auth.js"></script>
-  <script src="../../assets/js/storage.js"></script>
-  <script src="../../assets/js/pages/admin/customer.js"></script>
+
+  <!-- ✅ FIXED PATHS (root based) -->
+  <script src="/assets/js/admin-auth.js"></script>
+  <script src="/assets/js/storage.js"></script>
+
+  <script>
+    // ✅ Guard
+    (function(){
+      try{
+        if (window.AdminAuth && typeof AdminAuth.requireAuth === "function"){
+          AdminAuth.requireAuth("../login.html");
+        }
+      }catch(e){}
+    })();
+
+    // -------- helpers ----------
+    function safeParse(key){
+      try { return JSON.parse(localStorage.getItem(key)); }
+      catch(e){ return null; }
+    }
+
+    function safeSet(key, value){
+      localStorage.setItem(key, JSON.stringify(value));
+      try{
+        window.dispatchEvent(new StorageEvent("storage", { key }));
+      }catch(e){}
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "").replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    // ✅ Accept ISO string OR timestamp number OR timestamp string
+    function toDate(value){
+      if (value === null || value === undefined || value === "") return null;
+
+      // number -> ms
+      if (typeof value === "number" && Number.isFinite(value)){
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      const s = String(value).trim();
+
+      // numeric string -> ms
+      if (/^\d{10,13}$/.test(s)){
+        const ms = Number(s);
+        const d = new Date(ms);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      // ISO / normal date string
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatDate(value){
+      const d = toDate(value);
+      return d ? d.toLocaleString() : "";
+    }
+
+    function readArrayKey(key){
+      const v = safeParse(key);
+      if (Array.isArray(v)) return v;
+      if (v && Array.isArray(v.items)) return v.items;
+      return [];
+    }
+
+    // ✅ normalize createdAt properly
+    function normalizeCustomer(x){
+      if(!x || typeof x !== "object") return null;
+
+      const name = (x.name || x.fullName || x.username || "").toString().trim();
+      const email = (x.email || x.customerEmail || "").toString().trim();
+      const phone = (x.phone || x.mobile || x.customerPhone || "").toString().trim();
+      const city  = (x.city || x.customerCity || "").toString().trim();
+
+      // try different fields
+      const rawCreated =
+        (x.createdAt ?? x.created ?? x.created_on ?? x.date ?? x.time ?? x.createdOn ?? x.registeredAt);
+
+      const createdDate = toDate(rawCreated);
+
+      if(!name && !email && !phone) return null;
+
+      return {
+        name,
+        email,
+        phone,
+        city,
+        // ✅ store as ISO so admin always shows exact
+        createdAt: createdDate ? createdDate.toISOString() : ""
+      };
+    }
+
+    // ✅ STRONG matching so delete works even if email/phone missing
+    function sameCustomer(a, b){
+      if(!a || !b) return false;
+
+      const ae = (a.email || "").toLowerCase();
+      const be = (b.email || "").toLowerCase();
+      if (ae && be) return ae === be;
+
+      const ap = (a.phone || "").replace(/\s+/g,"");
+      const bp = (b.phone || "").replace(/\s+/g,"");
+      if (ap && bp) return ap === bp;
+
+      const an = (a.name || "").toLowerCase().trim();
+      const bn = (b.name || "").toLowerCase().trim();
+      if (an && bn){
+        const ta = toDate(a.createdAt)?.getTime() || 0;
+        const tb = toDate(b.createdAt)?.getTime() || 0;
+        return an === bn && ta === tb;
+      }
+
+      return false;
+    }
+
+    function removeCustomerFromArray(arr, target){
+      const t = normalizeCustomer(target);
+      return (Array.isArray(arr) ? arr : []).filter(x => {
+        const c = normalizeCustomer(x);
+        if(!c) return false;
+        return !sameCustomer(c, t);
+      });
+    }
+
+    // ✅ IMPORTANT: Customers list should NOT include inquiries
+    function loadCustomersOnly(){
+      const mergedRaw = [];
+      mergedRaw.push(...readArrayKey("customers"));
+      mergedRaw.push(...readArrayKey("cs_customers"));
+      mergedRaw.push(...readArrayKey("users"));
+      mergedRaw.push(...readArrayKey("cs_users"));
+
+      const map = new Map();
+
+      mergedRaw.forEach(item => {
+        const c = normalizeCustomer(item);
+        if(!c) return;
+
+        const key =
+          (c.email ? ("email:" + c.email.toLowerCase()) :
+          (c.phone ? ("phone:" + c.phone.replace(/\s+/g,"")) :
+          ("name:" + (c.name||"").toLowerCase() + "|t:" + (toDate(c.createdAt)?.getTime()||0))));
+
+        const prev = map.get(key);
+        if (!prev) map.set(key, c);
+        else {
+          const tp = toDate(prev.createdAt)?.getTime() || 0;
+          const tn = toDate(c.createdAt)?.getTime() || 0;
+          map.set(key, (tn >= tp) ? c : prev);
+        }
+      });
+
+      return Array.from(map.values()).sort((a,b) => {
+        const ta = toDate(a.createdAt)?.getTime() || 0;
+        const tb = toDate(b.createdAt)?.getTime() || 0;
+        return tb - ta;
+      });
+    }
+
+    function deleteCustomerEverywhere(target){
+      const keys = ["customers","cs_customers","users","cs_users"];
+      keys.forEach(k => {
+        const arr = readArrayKey(k);
+        const filtered = removeCustomerFromArray(arr, target);
+        if (filtered.length !== arr.length){
+          safeSet(k, filtered);
+        }
+      });
+    }
+
+    function renderCustomers(){
+      const tbody = document.getElementById("customersBody");
+      const empty = document.getElementById("emptyState");
+
+      const list = loadCustomersOnly();
+
+      tbody.innerHTML = "";
+
+      if(!list.length){
+        empty.classList.remove("d-none");
+        return;
+      }
+      empty.classList.add("d-none");
+
+      list.forEach((c) => {
+        const tr = document.createElement("tr");
+        tr.dataset.customer = JSON.stringify(c);
+
+        tr.innerHTML = `
+          <td>${escapeHtml(c.name)}</td>
+          <td>${escapeHtml(c.email)}</td>
+          <td>${escapeHtml(c.phone)}</td>
+          <td>${escapeHtml(c.city)}</td>
+          <td>${escapeHtml(formatDate(c.createdAt))}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-danger">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("#customersBody button.btn-danger");
+      if (!btn) return;
+
+      const tr = btn.closest("tr");
+      if(!tr) return;
+
+      let target = null;
+      try { target = JSON.parse(tr.dataset.customer || "null"); } catch(e) {}
+
+      if(!target) return;
+
+      const title = target.name || target.email || target.phone || "this customer";
+      if(!confirm(`Delete ${title}?`)) return;
+
+      deleteCustomerEverywhere(target);
+      renderCustomers();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderCustomers();
+
+      window.addEventListener("storage", (e) => {
+        const watch = ["customers","cs_customers","users","cs_users"];
+        if (watch.includes(e.key)) renderCustomers();
+      });
+    });
+  </script>
 </body>
 </html>

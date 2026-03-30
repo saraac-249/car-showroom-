@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Customer</title>
+  <style>
+    body{font-family: Arial, sans-serif; margin: 20px;}
+    .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;}
+    .btn{padding:8px 12px; cursor:pointer; border:1px solid #ccc; background:#fff; border-radius:6px;}
+    .btn-primary{background:#0d6efd; color:#fff; border-color:#0d6efd;}
+    .btn-light{background:#f5f5f5;}
+    .card{border:1px solid #ddd; border-radius:10px; padding:16px; max-width:520px;}
+    label{display:block; margin-top:10px; font-weight:600;}
+    input{width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-top:6px;}
+    .row{display:flex; gap:12px; align-items:center; margin-top:16px;}
+    .muted{color:#666; font-size:13px; margin-top:10px;}
+    .error{color:#dc3545; font-size:13px; margin-top:10px; display:none;}
+    .ok{color:#198754; font-size:13px; margin-top:10px; display:none;}
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <h1>Add Customer</h1>
+    <button class="btn btn-light" onclick="location.href='customers.html'">Back</button>
+  </div>
+
+  <div class="card">
+    <form id="addCustomerForm" autocomplete="off">
+      <label>Full Name</label>
+      <input type="text" id="name" required placeholder="e.g. Ali Ahmad" />
+
+      <label>Email</label>
+      <input type="email" id="email" required placeholder="e.g. ali@gmail.com" />
+
+      <label>Phone</label>
+      <input type="text" id="phone" placeholder="e.g. 03xxxxxxxxx" />
+
+      <div class="row">
+        <button class="btn btn-primary" type="submit">Save Customer</button>
+        <button class="btn" type="button" onclick="resetForm()">Clear</button>
+      </div>
+
+      <div id="err" class="error"></div>
+      <div id="ok" class="ok"></div>
+
+      <p class="muted">
+        Note: Customer data same localStorage key <b>"customers"</b> me save hoga, isi liye admin customers page pe show hoga.
+      </p>
+    </form>
+  </div>
+
+<script>
+  // ✅ MUST match customers.html
+  const LS_CUSTOMERS_KEY = "customers";
+
+  function getCustomers(){
+    try{
+      const data = JSON.parse(localStorage.getItem(LS_CUSTOMERS_KEY));
+      return Array.isArray(data) ? data : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function setCustomers(list){
+    localStorage.setItem(LS_CUSTOMERS_KEY, JSON.stringify(list));
+  }
+
+  function showError(msg){
+    const el = document.getElementById("err");
+    const ok = document.getElementById("ok");
+    ok.style.display = "none";
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  function showOk(msg){
+    const el = document.getElementById("ok");
+    const err = document.getElementById("err");
+    err.style.display = "none";
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  function resetForm(){
+    document.getElementById("addCustomerForm").reset();
+    document.getElementById("err").style.display = "none";
+    document.getElementById("ok").style.display = "none";
+  }
+
+  function normalizeEmail(email){
+    return String(email || "").trim().toLowerCase();
+  }
+
+  document.getElementById("addCustomerForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const emailRaw = document.getElementById("email").value;
+    const email = normalizeEmail(emailRaw);
+    const phone = document.getElementById("phone").value.trim();
+
+    if(!name) return showError("Name is required.");
+    if(!email) return showError("Email is required.");
+
+    const customers = getCustomers();
+
+    // ✅ avoid duplicate by email
+    const exists = customers.some(c => normalizeEmail(c.email) === email);
+    if(exists) return showError("This email already exists.");
+
+    const customer = {
+      id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      name,
+      email,
+      phone,
+      createdAt: new Date().toLocaleString()
+    };
+
+    customers.push(customer);
+    setCustomers(customers);
+
+    showOk("Customer saved successfully ✅ Redirecting...");
+    setTimeout(() => {
+      location.href = "customers.html";
+    }, 600);
+  });
+</script>
+
+</body>
+</html>

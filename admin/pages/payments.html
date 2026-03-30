@@ -5,38 +5,129 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Payments | Admin</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    body{ background:#f6f7fb; }
+    .cardx{ background:#fff; border:1px solid rgba(15,23,42,.08); border-radius:16px; box-shadow:0 12px 30px rgba(2,6,23,.08); }
+  </style>
 </head>
 <body>
   <main class="container py-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h3 class="mb-0">Payments</h3>
-      <div class="text-muted">Pending/Unpaid invoices</div>
+      <div>
+        <h3 class="mb-0">Payments</h3>
+        <div class="text-muted">All invoices (Customer + Car details)</div>
+      </div>
+      <button class="btn btn-outline-danger btn-sm" id="btnClearPaid">
+        <i class="bi bi-trash3 me-1"></i> Clear Paid (demo)
+      </button>
     </div>
 
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Customer</th>
-            <th>Booking</th>
-            <th>Amount</th>
-            <th>Method</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th class="text-end">Action</th>
-          </tr>
-        </thead>
-        <tbody id="paymentsBody"></tbody>
-      </table>
-    </div>
+    <div class="cardx p-3">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Invoice</th>
+              <th>Customer</th>
+              <th>Car</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsBody"></tbody>
+        </table>
+      </div>
 
-    <div id="emptyState" class="text-center text-muted py-5 d-none">
-      No payments found.
+      <div id="emptyState" class="text-center text-muted py-5 d-none">
+        No payments found.
+      </div>
     </div>
   </main>
 
-  <script src="../../assets/js/admin-auth.js"></script>
   <script src="../../assets/js/storage.js"></script>
-  <script src="../../assets/js/pages/admin/payments.js"></script>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const body = document.getElementById("paymentsBody");
+    const empty = document.getElementById("emptyState");
+    const btnClearPaid = document.getElementById("btnClearPaid");
+
+    function esc(s){
+      return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    function badge(status){
+      const s = (status || "").toLowerCase();
+      if (s === "paid") return `<span class="badge rounded-pill text-bg-success">Paid</span>`;
+      return `<span class="badge rounded-pill text-bg-warning">Pending</span>`;
+    }
+
+    function render(){
+      const list = AppDB.getPayments()
+        .slice()
+        .sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)); // newest first
+
+      if (!list.length) {
+        body.innerHTML = "";
+        empty.classList.remove("d-none");
+        return;
+      }
+      empty.classList.add("d-none");
+
+      body.innerHTML = list.map(p => `
+        <tr>
+          <td>
+            <div class="fw-bold">${esc(p.invoiceNo)}</div>
+            <div class="text-secondary small">${p.bookingId ? ("Booking: " + esc(p.bookingId)) : ""}</div>
+          </td>
+          <td>
+            <div class="fw-bold">${esc(p.customerName || "Customer")}</div>
+            <div class="text-secondary small">${esc(p.customerEmail || "")}</div>
+          </td>
+          <td>
+            <div class="fw-bold">${esc(p.carName || "Car")}</div>
+            <div class="text-secondary small">${esc([p.carBrand, p.carModel].filter(Boolean).join(" • "))}</div>
+          </td>
+          <td class="fw-bold">Rs ${(p.amount || 0).toLocaleString()}</td>
+          <td>${esc(p.method || "—")}</td>
+          <td>${badge(p.status)}</td>
+          <td class="text-secondary">${p.createdAt ? new Date(p.createdAt).toLocaleString() : "—"}</td>
+          <td class="text-end">
+            ${
+              (p.status || "").toLowerCase() === "paid"
+                ? `<span class="text-muted small">—</span>`
+                : `<button class="btn btn-sm btn-primary" data-pay="${esc(p.id)}">
+                     <i class="bi bi-check2-circle me-1"></i> Mark Paid
+                   </button>`
+            }
+          </td>
+        </tr>
+      `).join("");
+
+      body.querySelectorAll("[data-pay]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-pay");
+          const method = prompt("Payment method?", "Cash");
+          AppDB.markPaymentPaid(id, method || "Cash");
+          render();
+        });
+      });
+    }
+
+    btnClearPaid.addEventListener("click", () => {
+      if (!confirm("Clear ALL paid payments? (demo)")) return;
+      AppDB.clearPaidPayments();
+      render();
+    });
+
+    render();
+  });
+  </script>
 </body>
 </html>

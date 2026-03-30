@@ -1,95 +1,161 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cars | Admin</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Cars</title>
+
+  <!-- ✅ Correct paths (root based) -->
+  <script src="/assets/js/admin-auth.js"></script>
+  <script>
+    AdminAuth.requireAuth("../login.html");
+  </script>
+
+  <script src="/assets/js/storage.js"></script>
+
+  <style>
+    body{ font-family: Arial, sans-serif; margin: 20px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    input, select{ padding:10px; width: 220px; }
+    button{ padding:10px 12px; cursor:pointer; }
+    table{ width:100%; border-collapse: collapse; margin-top: 14px; }
+    th,td{ border-bottom:1px solid #ddd; padding:10px; text-align:left; vertical-align:top; }
+    th{ background:#f7f7f7; }
+    .muted{ color:#666; font-size:12px; }
+  </style>
 </head>
+
 <body>
-  <main class="container py-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <h3 class="mb-0">Cars</h3>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCarModal">
-        Add Car
-      </button>
-    </div>
 
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Car</th>
-            <th>Year</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Images</th>
-            <th class="text-end">Action</th>
-          </tr>
-        </thead>
-        <tbody id="carsBody"></tbody>
-      </table>
-    </div>
+  <h1>Cars</h1>
 
-    <div id="emptyState" class="text-center text-muted py-5 d-none">
-      No cars found.
-    </div>
+  <!-- ✅ Roman Urdu explanatory text REMOVED -->
 
-    <!-- Add car modal -->
-    <div class="modal fade" id="addCarModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <form class="modal-content" id="carForm">
-          <div class="modal-header">
-            <h5 class="modal-title">Add Car</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
+  <div class="row" style="margin-top:12px;">
+    <input id="name" placeholder="Car name (e.g. kia sorento)" />
+    <input id="year" placeholder="Year (e.g. 2023)" />
+    <input id="price" placeholder="Price (e.g. 16000000)" />
+    <select id="status">
+      <option>Available</option>
+      <option>Reserved</option>
+      <option>Sold</option>
+    </select>
+    <button id="btnAdd">Add Car</button>
+    <button id="btnLogout">Logout</button>
+  </div>
 
-          <div class="modal-body">
-            <div class="row g-2">
-              <div class="col-md-4">
-                <label class="form-label">Make</label>
-                <input class="form-control" name="make" required>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Model</label>
-                <input class="form-control" name="model" required>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Year</label>
-                <input class="form-control" name="year" type="number" required>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Price</label>
-                <input class="form-control" name="price" type="number" required>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="status">
-                  <option value="available">available</option>
-                  <option value="reserved">reserved</option>
-                  <option value="sold">sold</option>
-                </select>
-              </div>
-              <div class="col-md-12">
-                <label class="form-label">Images</label>
-                <input class="form-control" id="carImages" name="images" type="file" multiple accept="image/*">
-                <div class="form-text">Images localStorage me base64 ban kar save hongi.</div>
-              </div>
-            </div>
-          </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Car</th>
+        <th>Year</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th style="width:140px;">Action</th>
+      </tr>
+    </thead>
+    <tbody id="tbl">
+      <tr><td colspan="6" class="muted">No cars yet</td></tr>
+    </tbody>
+  </table>
 
-          <div class="modal-footer">
-            <button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button>
-            <button class="btn btn-primary" type="submit">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </main>
+<script>
+  const tbl = document.getElementById("tbl");
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../assets/js/admin-auth.js"></script>
-  <script src="../../assets/js/storage.js"></script>
-  <script src="../../assets/js/pages/admin/cars.js"></script>
+  // ✅ Make filename from name: "Kia Sorento" -> "kia-sorento"
+  function slugify(name){
+    return String(name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  // ✅ Admin stores image path (customer page will use it)
+  // Admin page is 2 levels deep -> "../../images/cars/..."
+  function autoImageFromName(name){
+    const slug = slugify(name);
+    if (!slug) return "";
+    return "../../images/cars/" + slug + ".jpg";
+  }
+
+  function esc(s){
+    return String(s ?? "").replace(/[<>&"]/g, c => ({
+      "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;"
+    }[c]));
+  }
+
+  function fmt(d){
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return "-";
+    return dt.toLocaleString();
+  }
+
+  function render(){
+    const cars = (window.AppDB && typeof AppDB.getCars === "function") ? AppDB.getCars() : [];
+    if (!cars.length){
+      tbl.innerHTML = `<tr><td colspan="6" class="muted">No cars yet</td></tr>`;
+      return;
+    }
+
+    tbl.innerHTML = cars.map(c => `
+      <tr>
+        <td style="font-weight:800">${esc(c.name)}</td>
+        <td>${esc(c.year)}</td>
+        <td>${esc(c.price)}</td>
+        <td>${esc(c.status)}</td>
+        <td class="muted">${fmt(c.createdAt)}</td>
+        <td>
+          <button data-del="${c.id}" style="background:#fee2e2;">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  document.getElementById("btnAdd").addEventListener("click", () => {
+    const name = document.getElementById("name").value.trim();
+    const year = document.getElementById("year").value.trim();
+    const price = document.getElementById("price").value.trim();
+    const status = document.getElementById("status").value;
+
+    if (!name) { alert("Car name required"); return; }
+
+    const imgPath = autoImageFromName(name);
+
+    AppDB.addCar({
+      name,
+      year,
+      price,
+      status,
+      images: imgPath ? [imgPath] : []
+    });
+
+    document.getElementById("name").value = "";
+    document.getElementById("year").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("status").value = "Available";
+
+    render();
+  });
+
+  tbl.addEventListener("click", (e) => {
+    const delId = e.target?.getAttribute("data-del");
+    if (delId){
+      AppDB.deleteCar(delId);
+      render();
+    }
+  });
+
+  document.getElementById("btnLogout").addEventListener("click", () => {
+    AdminAuth.logout();
+    window.location.replace("../login.html");
+  });
+
+  render();
+</script>
+
 </body>
 </html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" style="visibility:hidden;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Dashboard | CarShowroom</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <!-- 1) common DB -->
+  <script src="../assets/js/storage.js"></script>
+  <!-- 2) customer auth -->
+  <script src="../assets/js/customer-auth.js"></script>
+
+  <!-- ✅ no blink -->
+  <script>
+    CustomerAuth.requireAuthEarly("./login.html");
+  </script>
+
+  <style>
+    :root{ --brand:#2563eb; --brand2:#7c3aed; --bg:#f6f7fb; --muted:#64748b; --border:rgba(15,23,42,.08); }
+    body{ background:var(--bg); }
+    .navbar{ background:rgba(255,255,255,.85); backdrop-filter: blur(12px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:1030; }
+    .navbar::before{ content:""; position:absolute; left:0; right:0; top:0; height:3px; background:linear-gradient(90deg,var(--brand),var(--brand2));}
+    .brand-badge{ width:42px; height:42px; border-radius:14px; background:linear-gradient(135deg,var(--brand),var(--brand2)); display:grid; place-items:center; color:#fff; font-weight:900; }
+    .nav-link{ font-weight:700; border-radius:12px; padding:10px 12px; }
+    .nav-link.active{ background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.18); color:var(--brand) !important; }
+    .hero{ border-radius:24px; background:linear-gradient(135deg, rgba(255,255,255,.85), rgba(255,255,255,.60)); border:1px solid var(--border); }
+    .cardx{ background:#fff; border:1px solid var(--border); border-radius:20px; }
+    .stat{ display:flex; gap:14px; align-items:center; padding:18px; }
+    .ic{ width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:rgba(37,99,235,.10); border:1px solid rgba(37,99,235,.15); color:var(--brand); font-size:20px; }
+    .k{ color:var(--muted); font-weight:700; font-size:14px; }
+    .v{ font-size:28px; font-weight:900; line-height:1; }
+    .module{ padding:18px; }
+    .m-title{ font-weight:900; margin:0; }
+    .m-desc{ margin:0; color:var(--muted); font-weight:700; }
+    .m-ic{ width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(124,58,237,.10);border:1px solid rgba(124,58,237,.16);color:var(--brand2);font-size:20px; }
+    footer{ background:#0b1220; color:rgba(255,255,255,.78); padding:18px 0; margin-top:24px; }
+    footer::before{ content:""; position:absolute; left:0; right:0; top:0; height:3px; background:linear-gradient(90deg,var(--brand),var(--brand2));}
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg position-relative">
+    <div class="container py-2">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.html">
+        <span class="brand-badge">CR</span>
+        <div class="d-flex flex-column lh-1">
+          <span class="aware fw-bold">CarShowroom</span>
+          <small class="text-secondary">Customer Panel</small>
+        </div>
+      </a>
+
+      <div class="ms-auto d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" href="my-profile.html">
+          <i class="bi bi-person-circle me-1"></i> Profile
+        </a>
+        <button class="btn btn-outline-danger btn-sm" id="btnLogout" type="button">
+          <i class="bi bi-box-arrow-right me-1"></i> Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+
+    <section class="hero p-4 mb-4">
+      <h1 class="fw-bold mb-1">Dashboard</h1>
+      <p class="text-secondary mb-0" id="welcomeLine">Welcome!</p>
+    </section>
+
+    <!-- Only 2 stats: Bookings + Unread Inquiries -->
+    <section class="row g-3 mb-4">
+      <div class="col-lg-6">
+        <div class="cardx stat">
+          <div class="ic"><i class="bi bi-calendar-check"></i></div>
+          <div>
+            <div class="k">My Bookings</div>
+            <div class="v" id="statBookings">0</div>
+            <div class="k">Your total bookings</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="cardx stat">
+          <div class="ic"><i class="bi bi-chat-dots"></i></div>
+          <div>
+            <div class="k">Unread Inquiries</div>
+            <div class="v" id="statUnreadInquiries">0</div>
+            <div class="k">Your unread messages</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modules (Only functional ones) -->
+    <section class="row g-3">
+      <div class="col-lg-6">
+        <div class="cardx module h-100">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h3 class="m-title">Browse Cars</h3>
+              <p class="m-desc">Explore available cars</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-car-front"></i></div>
+          </div>
+          <div class="mt-3 d-flex gap-2 flex-wrap">
+            <a href="inventory.html" class="btn btn-primary">
+              <i class="bi bi-search me-1"></i> Browse
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="cardx module h-100">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h3 class="m-title">Bookings</h3>
+              <p class="m-desc">Create / view bookings</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-calendar2-week"></i></div>
+          </div>
+          <div class="mt-3 d-flex gap-2 flex-wrap">
+            <a href="bookings.html" class="btn btn-outline-primary">
+              <i class="bi bi-eye me-1"></i> Open
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="cardx module h-100">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h3 class="m-title">Inquiries</h3>
+              <p class="m-desc">Send message to admin</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-inbox"></i></div>
+          </div>
+          <div class="mt-3 d-flex gap-2 flex-wrap">
+            <a href="inquiries.html" class="btn btn-outline-primary">
+              <i class="bi bi-chat-left-text me-1"></i> Open
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="cardx module h-100">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h3 class="m-title">My Profile</h3>
+              <p class="m-desc">Update your details</p>
+            </div>
+            <div class="m-ic"><i class="bi bi-person-gear"></i></div>
+          </div>
+          <div class="mt-3 d-flex gap-2 flex-wrap">
+            <a href="my-profile.html" class="btn btn-outline-primary">
+              <i class="bi bi-sliders me-1"></i> Manage
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="position-relative">
+    <div class="container">
+      <div class="d-flex justify-content-between flex-wrap gap-2">
+        <div>© <span id="year"></span> CarShowroom</div>
+        <div style="opacity:.8">All rights reserved</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const c = CustomerAuth.getCustomer();
+    document.getElementById("welcomeLine").textContent =
+      c?.name ? `Welcome, ${c.name}` : `Welcome, ${c?.email || "Customer"}`;
+
+    // Stats from AppDB (only current customer's data)
+    const email = (c?.email || "").toLowerCase();
+
+    const myBookings = AppDB.getBookings().filter(b => (b.customerEmail || "").toLowerCase() === email);
+    document.getElementById("statBookings").textContent = myBookings.length;
+
+    const myInq = AppDB.getInquiries().filter(i => (i.customerEmail || "").toLowerCase() === email);
+    const unread = myInq.filter(i => (i.status || "").toLowerCase() === "unread").length;
+    document.getElementById("statUnreadInquiries").textContent = unread;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      CustomerAuth.logout("./login.html");
+    });
+  </script>
+</body>
+</html>

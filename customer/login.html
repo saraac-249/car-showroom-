@@ -1,4 +1,4 @@
-<!-- SAME FILE as yours, just JS part fixed (full file recommended) -->
+<!-- SAME FILE as yours, only navbar Contact removed -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -235,7 +235,7 @@
 
       <div class="nav-right">
         <a href="../index.html">Home</a>
-        <a href="../contact.html">Contact</a>
+        <!-- ✅ Contact removed -->
         <a class="active" href="login.html">Customer Sign In</a>
         <a href="../admin/login.html">Admin Login</a>
       </div>
@@ -314,6 +314,9 @@
     © 2025 CarShowroom. All Rights Reserved.
   </footer>
 
+  <!-- ✅ IMPORTANT: load AppDB -->
+  <script src="../assets/js/storage.js"></script>
+
   <script>
     const form = document.getElementById("loginForm");
     const msg = document.getElementById("message");
@@ -322,6 +325,10 @@
       msg.textContent = text;
       msg.className = "msg " + (type === "ok" ? "ok" : "err");
     }
+
+    // ✅ IMPORTANT:
+    // If you want "fresh start" when opening login page, uncomment:
+    // AppDB.clearCurrentCustomer();
 
     function getUsers(){
       return JSON.parse(localStorage.getItem("users") || "[]");
@@ -334,18 +341,38 @@
       const password = document.getElementById("password").value;
 
       const users = getUsers();
-      const user = users.find(u => (u.email || "").toLowerCase() === email && u.password === password);
+      const user = users.find(u =>
+        (u.email || "").toLowerCase() === email && u.password === password
+      );
 
       if(!user){
         showMessage("Invalid email or password.", "err");
         return;
       }
 
+      // ✅ keep your old flags (so other pages won't break)
       localStorage.setItem("customerLoggedIn", "true");
       localStorage.setItem("customerData", JSON.stringify({
         name: user.name || "",
         email: user.email
       }));
+
+      // ✅ MAIN FIX (strong session):
+      // Always overwrite cs_current_customer on every login
+      if (window.AppDB && typeof AppDB.setCurrentCustomer === "function") {
+        AppDB.setCurrentCustomer({
+          id: user.id || "",                 // if id exists
+          name: user.name || "Customer",
+          email: user.email
+        });
+      } else {
+        // fallback (shouldn't happen if storage.js is loaded)
+        localStorage.setItem("cs_current_customer", JSON.stringify({
+          id: user.id || "",
+          name: user.name || "Customer",
+          email: user.email
+        }));
+      }
 
       showMessage("Login successful! Redirecting...", "ok");
       setTimeout(() => window.location.href = "dashboard.html", 700);

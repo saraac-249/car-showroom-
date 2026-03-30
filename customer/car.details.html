@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Cars | CarRental</title>
+  <title>Buy a Car | CarRental</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -22,12 +22,25 @@
       display:grid; place-items:center; color:#fff; box-shadow:var(--shadow); font-weight:800;
     }
     .cardx{ background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); }
-    .car-img{ width:100%; height:170px; object-fit:cover; background:#eef2ff; }
+    .hero{
+      border-radius: 24px;
+      background:
+        radial-gradient(1200px 400px at 10% -10%, rgba(37,99,235,.35), transparent 55%),
+        radial-gradient(1200px 400px at 90% -10%, rgba(124,58,237,.35), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.8), rgba(255,255,255,.55));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .title{ font-size: clamp(24px, 3vw, 40px); font-weight: 800; letter-spacing: -0.02em; }
     .muted{ color:var(--muted); }
     .chip{
       font-size:12px; padding:6px 10px; border-radius:999px;
       background:rgba(15,23,42,.04); border:1px solid var(--border); color:var(--muted);
     }
+    .car-img{ width:100%; height:200px; object-fit:cover; background:#eef2ff; display:block; }
+    .btn-soft{ background: rgba(37,99,235,.08); border: 1px solid rgba(37,99,235,.18); color: var(--brand); }
+    .line{ height:1px; background:var(--border); margin:12px 0; }
   </style>
 </head>
 <body>
@@ -49,9 +62,9 @@
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
         <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2 me-1"></i> Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="inventory.html"><i class="bi bi-car-front me-1"></i> Browse Cars</a></li>
-        <li class="nav-item"><a class="nav-link active" href="car.details.html"><i class="bi bi-collection me-1"></i> My Cars</a></li>
+        <li class="nav-item"><a class="nav-link active" href="car.details.html"><i class="bi bi-cart3 me-1"></i> Buy a Car</a></li>
         <li class="nav-item"><a class="nav-link" href="bookings.html"><i class="bi bi-calendar-check me-1"></i> Bookings</a></li>
+        <li class="nav-item"><a class="nav-link" href="payments.html"><i class="bi bi-receipt me-1"></i> Payments</a></li>
         <li class="nav-item"><a class="nav-link" href="profile.html"><i class="bi bi-person-circle me-1"></i> Profile</a></li>
       </ul>
     </div>
@@ -60,128 +73,472 @@
 
 <main class="container my-4">
 
-  <section class="cardx p-4 mb-3">
-    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center">
+  <section class="hero p-4 p-lg-5 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
       <div>
-        <h3 class="mb-1 fw-bold">My Cars</h3>
-        <p class="muted mb-0">Your saved and wishlist cars will appear here.</p>
+        <div class="chip d-inline-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-cart3"></i> Top Brands • Ready to Buy
+        </div>
+        <h1 class="title mb-2">Buy a Car</h1>
+        <p class="muted mb-0">Cars select karo → Add to Cart → Confirm Booking → Payment invoice auto generate.</p>
       </div>
+
       <div class="d-flex gap-2 flex-wrap">
-        <span class="chip">Total: <b id="carsCount">0</b></span>
-        <a href="inventory.html" class="btn btn-outline-primary">
-          <i class="bi bi-search me-1"></i> Browse More
-        </a>
-        <button class="btn btn-outline-danger" id="btnClearAll">
-          <i class="bi bi-trash3 me-1"></i> Clear All
+        <span class="chip">Cart: <b id="cartCount">0</b></span>
+        <button class="btn btn-soft" id="btnViewCart">
+          <i class="bi bi-bag-check me-1"></i> View Cart
+        </button>
+        <button class="btn btn-outline-danger" id="btnClearCart">
+          <i class="bi bi-trash3 me-1"></i> Clear Cart
         </button>
       </div>
     </div>
   </section>
 
+  <div class="cardx p-3 mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-lg-6">
+        <div class="input-group">
+          <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+          <input id="q" type="text" class="form-control" placeholder="Search by brand / model...">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <select id="brandFilter" class="form-select">
+          <option value="">All Brands</option>
+        </select>
+      </div>
+      <div class="col-lg-2 d-flex justify-content-lg-end">
+        <span class="chip">Cars: <b id="carsCount">0</b></span>
+      </div>
+    </div>
+  </div>
+
   <section class="row g-3" id="carsGrid"></section>
 
   <section class="cardx p-4 text-center d-none" id="emptyState">
     <i class="bi bi-emoji-frown fs-2"></i>
-    <h5 class="mt-2 mb-1">No Saved Cars</h5>
-    <p class="muted mb-0">
-      Add cars from the inventory and they will be displayed here.
-    </p>
+    <h5 class="mt-2 mb-1">No Cars Found</h5>
+    <p class="muted mb-0">Search/Filter change karo.</p>
   </section>
 
 </main>
 
+<!-- Cart Modal -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-bag-check me-2"></i>Your Cart</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="cartList"></div>
+        <div class="line"></div>
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="muted">Total</div>
+          <div class="fw-bold fs-5">Rs <span id="cartTotal">0</span></div>
+        </div>
+        <div class="muted small mt-1">* Booking confirm karte hi payment invoice ban jayega (Pending).</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" id="btnConfirmBooking">
+          <i class="bi bi-check2-circle me-1"></i> Confirm Booking
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/storage.js"></script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-    const safeParse = (key, fallback) => {
-      try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
-      catch { return fallback; }
+  const IMG_BASE = "../images/cars/";
+  const FALLBACK_IMG = "../images/bj.png";
+
+  // OPTIONAL: old cars fallback map (will NOT override admin saved images)
+  const CAR_IMAGE_MAP = {
+    "Toyota Corolla": "toyota-corolla.jpg",
+    "Honda Civic": "honda-civic.jpg",
+    "Suzuki Swift": "suzuki-swift.jpg",
+    "Hyundai Elantra": "hyundai-elantra.jpg",
+    "KIA Sportage": "kia-sportage.jpg",
+    "BMW 3 Series": "bmw-3-series.jpg",
+    "Mercedes C-Class": "mercedes-c-class.jpg",
+    "Audi A4": "audi-a4.jpg",
+    "Tesla Model 3": "tesla-model-3.jpg",
+    "Ford Mustang": "ford-mustang.jpg",
+    "Nissan Altima": "nissan-altima.jpg",
+    "Toyota Fortuner": "toyota-fortuner.jpg"
+  };
+
+  function formatDigits(n){
+    n = Math.round(Number(n || 0));
+    return n.toLocaleString("en-US");
+  }
+
+  function getCurrentCustomer() {
+    const tryKeys = [
+      "cs_current_customer", "currentCustomer", "loggedInCustomer",
+      "cs_customer", "customer", "sessionCustomer"
+    ];
+    for (const k of tryKeys) {
+      try {
+        const raw = localStorage.getItem(k);
+        if (!raw) continue;
+        const obj = JSON.parse(raw);
+        if (obj && (obj.email || obj.customerEmail)) {
+          return {
+            email: (obj.email || obj.customerEmail || "").toLowerCase(),
+            name: obj.name || obj.customerName || "Customer"
+          };
+        }
+      } catch {}
+    }
+    const email = (localStorage.getItem("customerEmail") || "guest@demo.com").toLowerCase();
+    const name = localStorage.getItem("customerName") || "Guest Customer";
+    return { email, name };
+  }
+
+  // OPTIONAL seed prices (only used for seed)
+  const PRICE_MAP = {
+    "Suzuki Swift": 4500000,
+    "Toyota Corolla": 7500000,
+    "Honda Civic": 9000000,
+    "Hyundai Elantra": 10000000,
+    "Nissan Altima": 12000000,
+    "KIA Sportage": 16000000,
+    "Audi A4": 25000000,
+    "BMW 3 Series": 35000000,
+    "Mercedes C-Class": 45000000,
+    "Tesla Model 3": 55000000,
+    "Ford Mustang": 70000000,
+    "Toyota Fortuner": 55000000
+  };
+
+  // ✅ Seed only if empty (kept, but images are local)
+  function seedCarsIfEmpty() {
+    const existing = AppDB.getCars();
+    if (Array.isArray(existing) && existing.length) return;
+
+    const seeds = [
+      { name:"Suzuki Swift",     brand:"Suzuki",  model:"Swift",    year:"2021" },
+      { name:"Toyota Corolla",   brand:"Toyota",  model:"Corolla",  year:"2022" },
+      { name:"Honda Civic",      brand:"Honda",   model:"Civic",    year:"2022" },
+      { name:"Hyundai Elantra",  brand:"Hyundai", model:"Elantra",  year:"2022" },
+      { name:"Nissan Altima",    brand:"Nissan",  model:"Altima",   year:"2022" },
+      { name:"KIA Sportage",     brand:"KIA",     model:"Sportage", year:"2023" },
+      { name:"Audi A4",          brand:"Audi",    model:"A4",       year:"2022" },
+      { name:"BMW 3 Series",     brand:"BMW",     model:"3 Series", year:"2021" },
+      { name:"Mercedes C-Class", brand:"Mercedes",model:"C-Class",  year:"2022" },
+      { name:"Tesla Model 3",    brand:"Tesla",   model:"Model 3",  year:"2023" },
+      { name:"Ford Mustang",     brand:"Ford",    model:"Mustang",  year:"2021" },
+      { name:"Toyota Fortuner",  brand:"Toyota",  model:"Fortuner", year:"2023" },
+    ];
+
+    seeds.forEach(s => {
+      const file = CAR_IMAGE_MAP[s.name];
+      AppDB.addCar({
+        name: s.name,
+        year: s.year,
+        price: PRICE_MAP[s.name] || 5000000,
+        status: "Available",
+        brand: s.brand,
+        model: s.model,
+        images: [ file ? (IMG_BASE + file) : FALLBACK_IMG ]
+      });
+    });
+  }
+
+  // ---------------------------
+  // Cart (localStorage)
+  // ---------------------------
+  const CART_KEY = "cs_cart";
+  const safeParse = (k, fb) => { try { return JSON.parse(localStorage.getItem(k) || ""); } catch { return fb; } };
+  const getCart = () => {
+    const c = safeParse(CART_KEY, []);
+    return Array.isArray(c) ? c : [];
+  };
+  const setCart = (items) => localStorage.setItem(CART_KEY, JSON.stringify(items));
+
+  // ---------------------------
+  // UI refs
+  // ---------------------------
+  const carsGrid = document.getElementById("carsGrid");
+  const emptyState = document.getElementById("emptyState");
+  const carsCount = document.getElementById("carsCount");
+  const cartCount = document.getElementById("cartCount");
+  const q = document.getElementById("q");
+  const brandFilter = document.getElementById("brandFilter");
+  const btnViewCart = document.getElementById("btnViewCart");
+  const btnClearCart = document.getElementById("btnClearCart");
+
+  const cartModalEl = document.getElementById("cartModal");
+  const cartModal = new bootstrap.Modal(cartModalEl);
+  const cartList = document.getElementById("cartList");
+  const cartTotal = document.getElementById("cartTotal");
+  const btnConfirmBooking = document.getElementById("btnConfirmBooking");
+
+  // ---------------------------
+  // Image pick (FINAL FIX)
+  // ---------------------------
+  function pickImage(c){
+    // 1) admin saved image priority
+    let img = (c.images && c.images[0]) || c.image || c.img || "";
+
+    // 2) admin saves "../../images/..." -> customer must use "../images/..."
+    if (img && img.startsWith("../../images/")) {
+      img = img.replace("../../images/", "../images/");
+    }
+
+    // 3) if stored as "/images/..." convert to relative
+    if (img && img.startsWith("/images/")) img = ".." + img;
+
+    // 4) if only filename stored, attach IMG_BASE
+    if (img && !img.includes("/") && !img.startsWith("http")) {
+      img = IMG_BASE + img;
+    }
+
+    // 5) ONLY if no saved image, use CAR_IMAGE_MAP
+    if (!img) {
+      const mapped = CAR_IMAGE_MAP[c.name];
+      if (mapped) img = IMG_BASE + mapped;
+    }
+
+    // 6) fallback
+    if (!img) img = FALLBACK_IMG;
+
+    return img;
+  }
+
+  const normalizeCar = (c) => {
+    const brand = c.brand || (c.name || "").split(" ")[0] || "";
+    const model = c.model || "";
+    return {
+      ...c,
+      id: c.id,
+      name: c.name || "Car",
+      brand,
+      model,
+      year: c.year || "",
+      price: Number(c.price || 0),
+      img: pickImage(c)
     };
+  };
 
-    const loadCars = () => {
-      const csCars = safeParse("cs_cars", []);
-      if (Array.isArray(csCars) && csCars.length) return csCars;
-      const cartItems = safeParse("cartItems", []);
-      return Array.isArray(cartItems) ? cartItems : [];
-    };
+  function updateCartBadge() {
+    cartCount.textContent = getCart().length;
+  }
 
-    const saveCars = (cars) => {
-      localStorage.setItem("cs_cars", JSON.stringify(cars));
-    };
+  function buildBrandOptions(cars) {
+    const brands = Array.from(new Set(cars.map(x => x.brand).filter(Boolean))).sort();
+    brandFilter.innerHTML = `<option value="">All Brands</option>` +
+      brands.map(b => `<option value="${b}">${b}</option>`).join("");
+  }
 
-    const carsGrid = document.getElementById("carsGrid");
-    const emptyState = document.getElementById("emptyState");
-    const carsCount = document.getElementById("carsCount");
-    const btnClearAll = document.getElementById("btnClearAll");
+  function renderCars() {
+    const cars = AppDB.getCars().map(normalizeCar);
 
-    const normalizeCar = (c) => {
-      const name = c?.name || c?.title || c?.carName || "Car";
-      const brand = c?.brand || c?.make || "";
-      const model = c?.model || "";
-      const price = c?.pricePerDay ?? c?.price ?? c?.rent ?? "";
-      const img = c?.image || c?.img || c?.photo || "https://picsum.photos/600/400?random=7";
-      const id = c?.id || c?._id || c?.carId || (name + "|" + brand + "|" + model);
-      return { ...c, id, name, brand, model, price, img };
-    };
+    const query = (q.value || "").trim().toLowerCase();
+    const bf = (brandFilter.value || "").trim().toLowerCase();
 
-    const render = () => {
-      const cars = loadCars().map(normalizeCar);
-      carsCount.textContent = cars.length;
+    const filtered = cars.filter(c => {
+      const matchQuery =
+        !query ||
+        (c.name || "").toLowerCase().includes(query) ||
+        (c.brand || "").toLowerCase().includes(query) ||
+        (c.model || "").toLowerCase().includes(query);
 
-      if (!cars.length) {
-        carsGrid.innerHTML = "";
-        emptyState.classList.remove("d-none");
-        return;
-      }
+      const matchBrand = !bf || (c.brand || "").toLowerCase() === bf;
+      return matchQuery && matchBrand;
+    });
 
-      emptyState.classList.add("d-none");
+    carsCount.textContent = filtered.length;
 
-      carsGrid.innerHTML = cars.map((c) => `
-        <div class="col-md-6 col-lg-4">
-          <div class="cardx overflow-hidden h-100">
-            <img class="car-img" src="${c.img}" alt="${c.name}">
-            <div class="p-3">
-              <div class="d-flex justify-content-between align-items-start gap-2">
-                <div>
-                  <div class="fw-bold">${c.name}</div>
-                  <div class="muted small">${[c.brand, c.model].filter(Boolean).join(" • ") || "—"}</div>
-                </div>
-                <span class="chip">${c.price ? ("Rs " + c.price + "/day") : "Saved"}</span>
+    if (!filtered.length) {
+      carsGrid.innerHTML = "";
+      emptyState.classList.remove("d-none");
+      return;
+    }
+    emptyState.classList.add("d-none");
+
+    const cart = getCart();
+    const inCart = new Set(cart.map(x => x.carId));
+
+    carsGrid.innerHTML = filtered.map(c => `
+      <div class="col-md-6 col-lg-4">
+        <div class="cardx overflow-hidden h-100">
+          <img class="car-img"
+               src="${c.img}"
+               alt="${c.name}"
+               loading="lazy"
+               referrerpolicy="no-referrer"
+               onerror="this.onerror=null;this.src='${FALLBACK_IMG}';">
+          <div class="p-3">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <div class="fw-bold">${c.name}</div>
+                <div class="muted small">${[c.brand, c.model, c.year].filter(Boolean).join(" • ") || "—"}</div>
               </div>
+              <span class="chip">Rs ${formatDigits(c.price)}</span>
+            </div>
 
-              <div class="d-flex gap-2 mt-3 flex-wrap">
-                <a class="btn btn-primary btn-sm" href="inventory.html">
-                  <i class="bi bi-search me-1"></i> Browse
-                </a>
-                <button class="btn btn-outline-danger btn-sm" data-remove="${encodeURIComponent(c.id)}">
-                  <i class="bi bi-trash3 me-1"></i> Remove
-                </button>
-              </div>
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+              <button class="btn btn-primary btn-sm" data-add="${c.id}" ${inCart.has(c.id) ? "disabled" : ""}>
+                <i class="bi bi-cart-plus me-1"></i> ${inCart.has(c.id) ? "Added" : "Add to Cart"}
+              </button>
+              <button class="btn btn-outline-primary btn-sm" data-buy="${c.id}">
+                <i class="bi bi-bag-check me-1"></i> Buy Now
+              </button>
             </div>
           </div>
         </div>
-      `).join("");
+      </div>
+    `).join("");
 
-      carsGrid.querySelectorAll("[data-remove]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const id = decodeURIComponent(btn.getAttribute("data-remove"));
-          const updated = loadCars().map(normalizeCar).filter(x => x.id !== id);
-          saveCars(updated);
-          render();
-        })
+    carsGrid.querySelectorAll("[data-add]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-add");
+        const cart = getCart();
+        if (cart.some(x => x.carId === id)) return;
+
+        cart.push({ carId: id, qty: 1 });
+        setCart(cart);
+        updateCartBadge();
+        renderCars();
       });
-    };
-
-    btnClearAll.addEventListener("click", () => {
-      if (!confirm("Are you sure you want to clear all saved cars?")) return;
-      saveCars([]);
-      render();
     });
 
-    render();
+    carsGrid.querySelectorAll("[data-buy]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-buy");
+        const cart = getCart();
+        if (!cart.some(x => x.carId === id)) {
+          cart.push({ carId: id, qty: 1 });
+          setCart(cart);
+          updateCartBadge();
+        }
+        openCart();
+      });
+    });
+  }
+
+  function openCart() {
+    const carsMap = new Map(AppDB.getCars().map(c => [c.id, normalizeCar(c)]));
+    const cart = getCart();
+
+    if (!cart.length) {
+      cartList.innerHTML = `<div class="text-center muted py-3">Cart is empty.</div>`;
+      cartTotal.textContent = "0";
+      btnConfirmBooking.disabled = true;
+      cartModal.show();
+      return;
+    }
+
+    btnConfirmBooking.disabled = false;
+
+    let total = 0;
+    cartList.innerHTML = cart.map(item => {
+      const car = carsMap.get(item.carId);
+      if (!car) return "";
+      total += (car.price || 0) * (item.qty || 1);
+
+      return `
+        <div class="d-flex gap-3 align-items-center py-2">
+          <img src="${car.img}"
+               style="width:90px;height:60px;object-fit:cover;border-radius:12px;border:1px solid rgba(15,23,42,.08)"
+               alt=""
+               loading="lazy"
+               onerror="this.onerror=null;this.src='${FALLBACK_IMG}';">
+          <div class="flex-grow-1">
+            <div class="fw-bold">${car.name}</div>
+            <div class="muted small">${[car.brand, car.model, car.year].filter(Boolean).join(" • ")}</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold">Rs ${formatDigits(car.price * item.qty)}</div>
+            <button class="btn btn-sm btn-outline-danger mt-1" data-remove="${item.carId}">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    cartTotal.textContent = formatDigits(total);
+
+    cartList.querySelectorAll("[data-remove]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-remove");
+        const updated = getCart().filter(x => x.carId !== id);
+        setCart(updated);
+        updateCartBadge();
+        openCart();
+        renderCars();
+      });
+    });
+
+    cartModal.show();
+  }
+
+  btnViewCart.addEventListener("click", openCart);
+
+  btnClearCart.addEventListener("click", () => {
+    if (!confirm("Clear cart?")) return;
+    setCart([]);
+    updateCartBadge();
+    renderCars();
   });
+
+  btnConfirmBooking.addEventListener("click", () => {
+    const { email, name } = getCurrentCustomer();
+    const cart = getCart();
+    if (!cart.length) return;
+
+    const carsMap = new Map(AppDB.getCars().map(c => [c.id, normalizeCar(c)]));
+
+    cart.forEach(item => {
+      const car = carsMap.get(item.carId);
+      if (!car) return;
+
+      AppDB.createBookingWithInvoice({
+        customerEmail: email,
+        customerName: name,
+        carId: car.id,
+        carName: car.name,
+        carBrand: car.brand,
+        carModel: car.model,
+        amount: car.price * (item.qty || 1),
+        qty: item.qty || 1,
+        days: 1
+      });
+    });
+
+    setCart([]);
+    updateCartBadge();
+
+    alert("Booking confirmed! Payment invoice created (Pending).");
+    window.location.href = "payments.html";
+  });
+
+  q.addEventListener("input", renderCars);
+  brandFilter.addEventListener("change", renderCars);
+
+  // ✅ init
+  seedCarsIfEmpty();
+  buildBrandOptions(AppDB.getCars().map(normalizeCar));
+  updateCartBadge();
+  renderCars();
+
+  // ✅ AUTO UPDATE when admin adds/deletes cars (same tab + other tabs)
+  AppDB.onCarsChange(() => {
+    buildBrandOptions(AppDB.getCars().map(normalizeCar));
+    renderCars();
+  });
+});
 </script>
 
 </body>
